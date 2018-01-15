@@ -1,0 +1,38 @@
+package com.angel.lda.controller;
+
+import com.angel.lda.model.Hospital;
+import com.angel.lda.service.HospitalService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.util.List;
+
+/**
+ * Created by Angel on 1/1/2018.
+ */
+
+@RequestMapping("/api/hospital")
+@RestController
+public class HospitalController {
+
+    private HospitalService hospitalService;
+
+    @Autowired
+    public HospitalController(HospitalService hospitalService) {
+        this.hospitalService = hospitalService;
+    }
+
+    @RequestMapping(value = "/", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<Hospital> getAllHospitals() throws MalformedURLException {
+        return hospitalService.getAllHospitals();
+    }
+
+    @RequestMapping(value = "/{hospitalId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public Hospital findHospitalById(@PathVariable("hospitalId") int hospitalId) throws IOException {
+        return hospitalService.findHospitalById(hospitalId);
+    }
+}
