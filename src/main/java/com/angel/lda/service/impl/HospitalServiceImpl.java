@@ -1,20 +1,13 @@
 package com.angel.lda.service.impl;
 
 import com.angel.lda.model.Hospital;
-import com.angel.lda.helperModel.General;
-import com.angel.lda.helperModel.Solution;
 import com.angel.lda.repository.HospitalRepository;
 import com.angel.lda.service.HospitalService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.List;
 
 /**

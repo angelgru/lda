@@ -7,6 +7,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 
@@ -14,7 +15,7 @@ import java.util.List;
  * Created by Angel on 1/1/2018.
  */
 
-@RequestMapping("/rest/sensorsyncapplication")
+@RequestMapping("/api/sensorsyncapplication")
 @RestController
 public class SensorSyncApplicationController {
 
@@ -26,12 +27,12 @@ public class SensorSyncApplicationController {
     }
 
     @RequestMapping(value = "/", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<SensorSyncApplication> getAllSensorSyncApplications() {
-        return sensorSyncApplicationService.getAllSensorSyncApplications();
+    public List<SensorSyncApplication> getAllSensorSyncApplications(Principal principal) {
+        return sensorSyncApplicationService.getAllSensorSyncApplications(principal.getName());
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public SensorSyncApplication getSensorSyncApplication(@PathVariable("id") int id) {
-        return sensorSyncApplicationService.getSensorSyncApplication(id);
+    public SensorSyncApplication getSensorSyncApplication(@PathVariable("id") int id, Principal principal) {
+        return sensorSyncApplicationService.getSensorSyncApplication(id, principal.getName());
     }
 }

@@ -16,7 +16,7 @@ public class Hospital {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    public int id;
     @Column(name = "name")
     @NotNull
     private String name;

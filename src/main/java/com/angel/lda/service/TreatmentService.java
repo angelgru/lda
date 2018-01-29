@@ -22,7 +22,7 @@ public interface TreatmentService {
 
     public Treatment createTreatment(Treatment treatment, String email);
 
-    public Treatment updateTreatment(Treatment treatment, int treatmentId, String email);
+    public Treatment updateTreatment(Treatment treatment, int treatmentId, String email, String doctorIPAddress);
 
     public void deleteTreatment(int id);
 }

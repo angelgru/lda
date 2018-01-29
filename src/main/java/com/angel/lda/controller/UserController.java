@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.util.List;
 
+import static org.springframework.web.bind.annotation.RequestMethod.GET;
+
 /**
  * Created by Angel on 1/1/2018.
  */
@@ -25,7 +27,7 @@ public class UserController {
         this.userService = userService;
     }
 
-    @RequestMapping(value = "/userInfo", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/userInfo", method = GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public User findUserByEmail(Principal principal) {
         User user = userService.findByEmail(principal.getName());
         return user;
@@ -33,8 +35,12 @@ public class UserController {
 
     @RequestMapping(value = "/create", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public User createUser(@RequestBody User user) {
-        System.out.println("CREATE");
         return userService.createUser(user);
+    }
+
+    @RequestMapping(value = "/setSensorApplication/{id}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public void setSensorApplication(@PathVariable("id") int id, Principal principal){
+        userService.setSensorApplication(id, principal.getName());
     }
 
     @RequestMapping(value = "/update", method = RequestMethod.PATCH, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -45,5 +51,10 @@ public class UserController {
     @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
     public void deleteUser(Principal principal) {
         userService.deleteUser(principal.getName());
+    }
+
+    @RequestMapping(value = "/doctors", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<User> getDoctors() {
+        return userService.getDoctors();
     }
 }

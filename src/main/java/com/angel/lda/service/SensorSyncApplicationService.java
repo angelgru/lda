@@ -9,7 +9,7 @@ import java.util.List;
  */
 public interface SensorSyncApplicationService {
 
-    public List<SensorSyncApplication> getAllSensorSyncApplications();
+    public List<SensorSyncApplication> getAllSensorSyncApplications(String email);
 
-    public SensorSyncApplication getSensorSyncApplication(int id);
+    public SensorSyncApplication getSensorSyncApplication(int id, String email);
 }

@@ -1,19 +1,14 @@
 package com.angel.lda.controller;
 
-import com.angel.lda.authentication.CustomUserDetails;
 import com.angel.lda.model.Treatment;
 import com.angel.lda.model.User;
-import com.angel.lda.repository.UserRepository;
 import com.angel.lda.service.TreatmentService;
 import com.angel.lda.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
@@ -70,8 +65,9 @@ public class TreatmentController {
 //    ( сервисот прави проверка дали сме испратиле дијагноза во request body, ако сме испратиле ја запишува во база, или
 //    се запишува кој доктор го земал тој treatment
     @RequestMapping(value = "/{treatmentId}", method = RequestMethod.PATCH, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Treatment updateTreatment(@RequestBody Treatment treatment, @PathVariable("treatmentId") int treatmentId, Principal principal) {
-        return treatmentService.updateTreatment(treatment, treatmentId, principal.getName());
+    public Treatment updateTreatment(@RequestBody Treatment treatment, @PathVariable("treatmentId") int treatmentId, Principal principal, HttpServletRequest request) {
+        String ipAddress = request.getRemoteAddr();
+        return treatmentService.updateTreatment(treatment, treatmentId, principal.getName(), ipAddress);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)

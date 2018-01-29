@@ -16,4 +16,8 @@ public interface UserService {
     public void deleteUser(String email);
 
     public User findByEmail(String email);
+
+    public void setSensorApplication(int sensorApplicationId, String email);
+
+    public List<User> getDoctors();
 }

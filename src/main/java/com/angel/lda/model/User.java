@@ -36,7 +36,7 @@ public class User {
     @NotNull
     private int doctor;
     @ManyToOne
-    private Hospital worksAtHospital;
+    public Hospital worksAtHospital;
     @ManyToOne
     private SensorSyncApplication usesSensorSyncApplication;
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
