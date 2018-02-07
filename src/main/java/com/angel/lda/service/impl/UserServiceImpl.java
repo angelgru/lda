@@ -16,58 +16,60 @@ import java.util.List;
  */
 
 @Service
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
 
-    private UserRepository userRepository;
-    private AccessControl accessControl;
-    private SensorSyncApplicationRepository sensorSyncApplicationRepository;
+  private final AuthenticationService authenticationService;
+  private UserRepository userRepository;
+  private AccessControl accessControl;
+  private SensorSyncApplicationRepository sensorSyncApplicationRepository;
 
-    @Autowired
-    public UserServiceImpl(UserRepository userRepository, SensorSyncApplicationRepository sensorSyncApplicationRepository, AccessControl accessControl) {
-        this.userRepository = userRepository;
-        this.sensorSyncApplicationRepository = sensorSyncApplicationRepository;
-        this.accessControl = accessControl;
-    }
+  @Autowired
+  public UserServiceImpl(UserRepository userRepository, AuthenticationService authenticationService, SensorSyncApplicationRepository sensorSyncApplicationRepository, AccessControl accessControl) {
+    this.userRepository = userRepository;
+    this.authenticationService = authenticationService;
+    this.sensorSyncApplicationRepository = sensorSyncApplicationRepository;
+    this.accessControl = accessControl;
+  }
 
-    @Override
-    public User createUser(User user) {
-        user.setActive(1);
-        user.setDoctor(0);
-        return userRepository.save(user);
-    }
+  @Override
+  public User createUser(User user) {
+    user.setActive(1);
+    user.setDoctor(0);
+    return userRepository.save(user);
+  }
 
 
-//    Преку метод во AccessControl спречувам можност корисникот да може да промени нешто друго освен име, број и број за итни повици
-    @Override
-    public User updateUser(User user, String email) {
-        User userToBeSaved = userRepository.findByEmail(email);
-        User tmpUser = accessControl.U2(user, userToBeSaved);
-        tmpUser = accessControl.A2(tmpUser);
-        return userRepository.save(tmpUser);
-    }
+  //    Преку метод во AccessControl спречувам можност корисникот да може да промени нешто друго освен име, број и број за итни повици
+  @Override
+  public User updateUser(User user, String email) {
+    User userToBeSaved = authenticationService.getAuthenticatedUser();
+    User tmpUser = accessControl.U2(user, userToBeSaved);
+    tmpUser = accessControl.A2(tmpUser);
+    return userRepository.save(tmpUser);
+  }
 
-    @Override
-    public void deleteUser(String email) {
-        User userToBeDeleted = userRepository.findByEmail(email);
-        userRepository.delete(userToBeDeleted);
-    }
+  @Override
+  public void deleteUser(String email) {
+    User userToBeDeleted = userRepository.findByEmail(email);
+    userRepository.delete(userToBeDeleted);
+  }
 
-    @Override
-    public User findByEmail(String email) {
-        return userRepository.findByEmail(email);
-    }
+  @Override
+  public User findByEmail(String email) {
+    return userRepository.findByEmail(email);
+  }
 
-    @Override
-    public void setSensorApplication(int sensorApplicationId, String email) {
-        User userToBeSaved = userRepository.findByEmail(email);
-        SensorSyncApplication sensorSyncApplication = sensorSyncApplicationRepository.findOne(sensorApplicationId);
-        if(sensorSyncApplication != null)
-            userToBeSaved.setUsesSensorSyncApplication(sensorSyncApplication);
-        userRepository.save(userToBeSaved);
-    }
+  @Override
+  public void setSensorApplication(int sensorApplicationId, String email) {
+    User userToBeSaved = userRepository.findByEmail(email);
+    SensorSyncApplication sensorSyncApplication = sensorSyncApplicationRepository.findOne(sensorApplicationId);
+    if (sensorSyncApplication != null)
+      userToBeSaved.setUsesSensorSyncApplication(sensorSyncApplication);
+    userRepository.save(userToBeSaved);
+  }
 
-    @Override
-    public List<User> getDoctors() {
-        return accessControl.P1(userRepository.getDoctors());
-    }
+  @Override
+  public List<User> getDoctors() {
+    return accessControl.P1(userRepository.getDoctors());
+  }
 }
