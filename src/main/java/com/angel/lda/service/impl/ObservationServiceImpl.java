@@ -6,6 +6,7 @@ import com.angel.lda.repository.ObservationRepository;
 import com.angel.lda.repository.SensorRepository;
 import com.angel.lda.service.ObservationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -21,7 +22,7 @@ public class ObservationServiceImpl implements ObservationService{
     private SensorRepository sensorRepository;
 
     @Autowired
-    public ObservationServiceImpl(ObservationRepository observationRepository, SensorRepository sensorRepository) {
+    public ObservationServiceImpl(@Qualifier("observationJpaRepository") ObservationRepository observationRepository, @Qualifier("sensorJpaRepository") SensorRepository sensorRepository) {
         this.observationRepository = observationRepository;
         this.sensorRepository = sensorRepository;
     }
@@ -33,11 +34,5 @@ public class ObservationServiceImpl implements ObservationService{
         observation.setSensor(sensor);
         observationRepository.save(observation);
         return observation;
-    }
-
-    @Override
-    public void deleteObservation(int observationId) {
-        Observation observation = observationRepository.findOne(observationId);
-        observationRepository.delete(observation);
     }
 }

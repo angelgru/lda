@@ -9,5 +9,10 @@ import org.springframework.stereotype.Repository;
  */
 
 @Repository
-public interface SensorRepository extends JpaRepository<Sensor, Integer>{
+public interface SensorRepository{
+    Sensor save(Sensor sensor);
+
+    Sensor findOne(int sensorId);
+
+    void delete(Sensor sensorToBeDeleted);
 }

@@ -4,10 +4,9 @@ import com.angel.lda.model.Hospital;
 import com.angel.lda.repository.HospitalRepository;
 import com.angel.lda.service.HospitalService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.List;
 
 /**
@@ -20,17 +19,17 @@ public class HospitalServiceImpl implements HospitalService{
     private HospitalRepository hospitalRepository;
 
     @Autowired
-    public HospitalServiceImpl(HospitalRepository hospitalRepository) {
+    public HospitalServiceImpl(@Qualifier("hospitalJpaRepository") HospitalRepository hospitalRepository) {
         this.hospitalRepository = hospitalRepository;
     }
 
     @Override
-    public List<Hospital> getAllHospitals() throws MalformedURLException {
+    public List<Hospital> getAllHospitals() {
         return hospitalRepository.findAll();
     }
 
     @Override
-    public Hospital findHospitalById(int hospitalId) throws IOException {
+    public Hospital findHospitalById(int hospitalId) {
         return hospitalRepository.findOne(hospitalId);
     }
 }

@@ -1,5 +1,6 @@
-package com.angel.lda.AccessControlMethods;
+package com.angel.lda.accesscontrolmethods;
 
+import com.angel.lda.exceptions.UserValuesExposed;
 import com.angel.lda.model.SensorSyncApplication;
 import com.angel.lda.model.Treatment;
 import com.angel.lda.model.User;
@@ -21,11 +22,21 @@ public class AccessControl {
 
     //    A2 Users’ mobile and emergency phones are private
     //    Тука пред секое враќање на User како објект ги отстранувам вредностите password, phoneNumber, emergencyPhone
-    public User A2(User user){
-        user.setPassword(null);
-        user.setPhoneNumber(null);
-        user.setEmergencyPhone(null);
-        return user;
+    public boolean A2(User user){
+
+        if(user.getPhoneNumber() != null) {
+            throw new UserValuesExposed("User mobile and emergency phone values exposed publicly");
+        }
+
+        if(user.getEmergencyPhone() != null) {
+            throw new UserValuesExposed("User mobile and emergency phone values exposed publicly");
+        }
+
+        if(user.getPassword() != null) {
+            throw new UserValuesExposed("User password exposed!!!");
+        }
+
+        return true;
     }
 
 //    A3 The average daily measurements from the sensors that are not sensitive (health) are public
@@ -34,32 +45,20 @@ public class AccessControl {
 //    Имплементирано преку findByEmail методот во UserService
 
 //    U2 The users can manage their name, phone and emergency phone or email.
-//    Овој метод го користам кога корисникот прави update на профилот, освен овие вредности ниедна друга неможе да се смени
-    public User U2(User user, User updateUser) {
+    public boolean U2(User modifiedUser, User originalUser) {
+        if(!originalUser.getPassword().equals(modifiedUser.getPassword()))
+            return false;
 
-        if(user.getName() != null) {
-            updateUser.setName(user.getName());
-        }
+        if(!originalUser.getEmail().equals(modifiedUser.getEmail()))
+            return false;
 
-        if(user.getPhoneNumber() != null) {
-            updateUser.setPhoneNumber(user.getPhoneNumber());
-        }
-
-        if(user.getEmergencyPhone() != null) {
-            updateUser.setEmergencyPhone(user.getEmergencyPhone());
-        }
-
-        return updateUser;
+        return true;
     }
 
 //    P1 The patients can access everything about the doctors from ex:hospital
 //    Филтрирање на листата од доктори при што ги враќам само оние кои работат во болницата со име hospital
     @PostFilter("filterObject.worksAtHospital.name.equals('hospital')")
     public List<User> P1(List<User> doctors) {
-        for(User doctor: doctors) {
-            doctor.setPassword(null);
-        }
-
         return doctors;
     }
 
@@ -92,7 +91,7 @@ public class AccessControl {
 //    Овде исто така не бев сигурен за кое мерења, па исто го направив за поставување дијагноза,
 //    ако веќе има поставено дијагноза за лекувањето, да неможе да се постави повторно
     public boolean D2(Treatment treatment) {
-        return treatment.getDiagnosis() != null;
+        return treatment.getDiagnosis() == null;
     }
 
 //    TS1 Technical Staff can manage applications only for his/hers hospital.
@@ -111,11 +110,26 @@ public class AccessControl {
 
 //    Doctor's can not set a diagnosis for treatment that doesn't belong to them
 //    Дополнителна полиса каде проверувам дали лекувањето е земено од докторот пред да може истиот да постави дијагноза
-    public boolean checkConditionsForDiagnosis(Treatment treatment, String email) {
-        return treatment.getHasDoctor().getEmail().equals(email);
-
+    public boolean isTreatmentTakenByDoctor(Treatment treatment, User user) {
+        return treatment.getHasDoctor().getEmail().equals(user.getEmail());
     }
 
 //    EM1 The doctor can access their patients emergency phone number during abnormal measurements.
+
+//    Check if the user can access sensorSyncApplication
+    public boolean canAccessSensorSyncApplication(User user) {
+        return (user.getDoctor() == 1);
+    }
+
+//    Can take treatments
+    public boolean canTakeTreatments(User user) {
+        return (user.getDoctor() == 1);
+    }
+
+//    Users are now allowed to get treatments not for them using http://localhost:8090/api/treatment/{treatmentId}
+    @PostFilter("filterObject.forPatient.id == #loggedInUser.id")
+    public List<Treatment> filterTreatments(List<Treatment> treatments, User loggedInUser){
+        return treatments;
+    }
 
 }

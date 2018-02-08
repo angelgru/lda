@@ -4,6 +4,7 @@ import com.angel.lda.model.User;
 import com.angel.lda.repository.UserRepository;
 import com.angel.lda.utils.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -18,7 +19,7 @@ public class AuthenticationService {
 
 
   @Autowired
-  public AuthenticationService(UserRepository repository) {
+  public AuthenticationService(@Qualifier("userJpaRepository") UserRepository repository) {
     this.repository = repository;
   }
 

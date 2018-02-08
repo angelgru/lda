@@ -27,30 +27,19 @@ public class UserController {
         this.userService = userService;
     }
 
-    @RequestMapping(value = "/userInfo", method = GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public User findUserByEmail(Principal principal) {
-        User user = userService.findByEmail(principal.getName());
-        return user;
-    }
-
     @RequestMapping(value = "/create", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public User createUser(@RequestBody User user) {
         return userService.createUser(user);
     }
 
     @RequestMapping(value = "/setSensorApplication/{id}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public void setSensorApplication(@PathVariable("id") int id, Principal principal){
-        userService.setSensorApplication(id, principal.getName());
+    public void setSensorApplication(@PathVariable("id") int id){
+        userService.setSensorApplication(id);
     }
 
     @RequestMapping(value = "/update", method = RequestMethod.PATCH, produces = MediaType.APPLICATION_JSON_VALUE)
-    public User updateUser(@RequestBody User user, Principal principal) {
-        return userService.updateUser(user, principal.getName());
-    }
-
-    @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
-    public void deleteUser(Principal principal) {
-        userService.deleteUser(principal.getName());
+    public User updateUser(@RequestBody User user) {
+        return userService.updateUser(user);
     }
 
     @RequestMapping(value = "/doctors", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)

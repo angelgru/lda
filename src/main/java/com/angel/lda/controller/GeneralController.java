@@ -1,6 +1,7 @@
 package com.angel.lda.controller;
 
-import com.angel.lda.AccessControlMethods.AccessControl;
+import com.angel.lda.accesscontrolmethods.AccessControl;
+import com.angel.lda.exceptions.ResourceNotAllowed;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,8 +22,9 @@ public class GeneralController {
     @RequestMapping(method = RequestMethod.GET, value = "/generateReport", produces = MediaType.APPLICATION_JSON_VALUE)
     public String generateReport(){
         if(accessControl.SU1()) {
-            return "Report dummy text";
+            return "Dummy report generated from user ben";
         }
-        return "EMPTY";
+
+        throw  new ResourceNotAllowed("You are not permitted to generate reports");
     }
 }

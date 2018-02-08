@@ -26,17 +26,12 @@ public class SensorController {
     }
 
     @RequestMapping(value = "/", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Sensor createSensor(@RequestBody Sensor sensor, Principal principal) {
-        return sensorService.createSensor(sensor, principal.getName());
+    public Sensor createSensor(@RequestBody Sensor sensor) {
+        return sensorService.createSensor(sensor);
     }
 
     @RequestMapping(value = "/{sensorId}", method = RequestMethod.PATCH, produces = MediaType.APPLICATION_JSON_VALUE)
     public Sensor updateSensor(@RequestBody Sensor sensor, @PathVariable("sensorId") int sensorId) {
         return sensorService.updateSensor(sensor, sensorId);
-    }
-
-    @RequestMapping(value = "/{sensorId}", method = RequestMethod.DELETE)
-    public void deleteSensor(@PathVariable("sensorId") int sensorId) {
-        sensorService.deleteSensor(sensorId);
     }
 }

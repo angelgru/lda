@@ -9,9 +9,8 @@ import java.util.List;
  */
 public interface SensorService {
 
-    public Sensor createSensor(Sensor sensor, String email);
+    public Sensor createSensor(Sensor sensor);
 
     public Sensor updateSensor(Sensor sensor, int sensorId);
 
-    public void deleteSensor(int sensorId);
 }

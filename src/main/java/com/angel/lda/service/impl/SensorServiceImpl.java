@@ -1,14 +1,13 @@
 package com.angel.lda.service.impl;
 
+import com.angel.lda.exceptions.ResourceNotAllowed;
 import com.angel.lda.model.Sensor;
 import com.angel.lda.model.User;
 import com.angel.lda.repository.SensorRepository;
-import com.angel.lda.repository.UserRepository;
 import com.angel.lda.service.SensorService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 /**
  * Created by Angel on 1/1/2018.
@@ -18,17 +17,17 @@ import java.util.List;
 public class SensorServiceImpl implements SensorService {
 
     private SensorRepository sensorRepository;
-    private UserRepository userRepository;
+    private AuthenticationService authenticationService;
 
     @Autowired
-    public SensorServiceImpl(SensorRepository sensorRepository, UserRepository userRepository) {
+    public SensorServiceImpl(@Qualifier("sensorJpaRepository") SensorRepository sensorRepository, AuthenticationService authenticationService) {
         this.sensorRepository = sensorRepository;
-        this.userRepository = userRepository;
+        this.authenticationService = authenticationService;
     }
 
     @Override
-    public Sensor createSensor(Sensor sensor, String email) {
-        User patient = userRepository.findByEmail(email);
+    public Sensor createSensor(Sensor sensor) {
+        User patient = authenticationService.getAuthenticatedUser();
         sensor.setOwner(patient);
         sensorRepository.save(sensor);
         return sensor;
@@ -36,18 +35,23 @@ public class SensorServiceImpl implements SensorService {
 
     @Override
     public Sensor updateSensor(Sensor sensor, int sensorId) {
-        Sensor sensorToBeUpdated = sensorRepository.findOne(sensorId);
-        sensorToBeUpdated.setRegularFrom(sensor.getRegularFrom());
-        sensorToBeUpdated.setRegularTo(sensor.getRegularTo());
-        sensorToBeUpdated.setType(sensor.getType());
-        sensorToBeUpdated.setUnit(sensor.getUnit());
-        sensorRepository.save(sensorToBeUpdated);
-        return sensorToBeUpdated;
-    }
+        Sensor updateSensor = Sensor.copy(sensorRepository.findOne(sensorId));
 
-    @Override
-    public void deleteSensor(int sensorId) {
-        Sensor sensorToBeDeleted = sensorRepository.findOne(sensorId);
-        sensorRepository.delete(sensorToBeDeleted);
+        if(updateSensor.getOwner().equals(authenticationService.getAuthenticatedUser())){
+            if(sensor.getRegularFrom() != 0)
+                updateSensor.setRegularFrom(sensor.getRegularFrom());
+            if(sensor.getRegularTo() != 0)
+                updateSensor.setRegularTo(sensor.getRegularTo());
+            if(sensor.getType() != null)
+                updateSensor.setType(sensor.getType());
+            if(sensor.getUnit() != null)
+                updateSensor.setUnit(sensor.getUnit());
+            sensorRepository.save(updateSensor);
+            return updateSensor;
+        }
+
+        throw new ResourceNotAllowed("You are not allowed to modify this resource!");
+
+
     }
 }

@@ -11,6 +11,4 @@ import java.util.List;
 public interface ObservationService {
 
     public Observation createObservation(Observation observation, int sensorId) ;
-
-    public void deleteObservation(int observationId);
 }

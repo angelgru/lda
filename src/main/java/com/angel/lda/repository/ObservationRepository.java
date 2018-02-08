@@ -9,5 +9,10 @@ import org.springframework.stereotype.Repository;
  */
 
 @Repository
-public interface ObservationRepository extends JpaRepository<Observation, Integer>{
+public interface ObservationRepository {
+    Observation save(Observation observation);
+
+    Observation findOne(int observationId);
+
+    void delete(Observation observation);
 }

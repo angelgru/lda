@@ -11,13 +11,11 @@ public interface UserService {
 
     public User createUser(User user);
 
-    public User updateUser(User user, String email);
+    public User updateUser(User user);
 
-    public void deleteUser(String email);
-
-    public User findByEmail(String email);
-
-    public void setSensorApplication(int sensorApplicationId, String email);
+    public void setSensorApplication(int sensorApplicationId);
 
     public List<User> getDoctors();
+
+    public User cleanUser(User user);
 }

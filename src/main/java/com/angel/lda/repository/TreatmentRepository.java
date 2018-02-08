@@ -14,8 +14,8 @@ import java.util.List;
  */
 
 @Repository
-public interface TreatmentRepository extends JpaRepository<Treatment, Integer>{
-
+public interface TreatmentRepository{
+    
     @Query("select t from Treatment as t where t.hasDoctor is null")
     List<Treatment> getAllNonTakenTreatments();
 
@@ -23,5 +23,14 @@ public interface TreatmentRepository extends JpaRepository<Treatment, Integer>{
     List<Treatment> getAllTreatmentsAcceptedByCurrentlyLoggedInDoctor(@Param("doctor")User user);
 
     @Query("select t from Treatment as t where t.diagnosis is not null and t.hasDoctor = :doctor")
-    List<Treatment> getLockedTreatmentsAcceptedByCurrentlyLoggedInDoctor(@Param("doctor") User user);
+    List<Treatment> getCompletedTreatmentsAcceptedByCurrentlyLoggedInDoctor(@Param("doctor") User user);
+
+    @Query("select t from Treatment as t where t.hasDoctor = :doctor and t.id =:id")
+    Treatment getTreatmentById(@Param("doctor") User user, @Param("id") int id);
+
+    Treatment findOne(int id);
+
+    Treatment save(Treatment newTreatment);
+
+    void delete(int id);
 }

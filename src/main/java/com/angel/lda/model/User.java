@@ -51,6 +51,24 @@ public class User {
     public User() {
     }
 
+    public static User copy(User user){
+        User newUser = new User();
+        newUser.setId(user.getId());
+        newUser.setPassword(user.getPassword());
+        newUser.setName(user.getName());
+        newUser.setPhoneNumber(user.getPhoneNumber());
+        newUser.setEmergencyPhone(user.getEmergencyPhone());
+        newUser.setEmail(user.getEmail());
+        newUser.setUsesSensorSyncApplication(user.getUsesSensorSyncApplication());
+        newUser.setIsDoctorForTreatments(user.getIsDoctorForTreatments());
+        newUser.setOwnsSensors(user.getOwnsSensors());
+        newUser.setUserTreatments(user.getUserTreatments());
+        newUser.setActive(user.getActive());
+        newUser.setDoctor(user.getDoctor());
+        newUser.setWorksAtHospital(user.getWorksAtHospital());
+        return newUser;
+    }
+
     public int getId() {
         return id;
     }

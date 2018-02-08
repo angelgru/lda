@@ -1,12 +1,14 @@
 package com.angel.lda.service.impl;
 
-import com.angel.lda.AccessControlMethods.AccessControl;
+import com.angel.lda.accesscontrolmethods.AccessControl;
+import com.angel.lda.exceptions.ResourceNotAllowed;
 import com.angel.lda.model.SensorSyncApplication;
 import com.angel.lda.model.User;
 import com.angel.lda.repository.SensorSyncApplicationRepository;
 import com.angel.lda.service.SensorSyncApplicationService;
 import com.angel.lda.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,23 +23,34 @@ public class SensorSyncApplicationServiceImpl implements SensorSyncApplicationSe
     private SensorSyncApplicationRepository sensorSyncApplicationRepository;
     private UserService userService;
     private AccessControl accessControl;
+    private AuthenticationService authenticationService;
 
     @Autowired
-    public SensorSyncApplicationServiceImpl(SensorSyncApplicationRepository sensorSyncApplicationRepository, UserService userService, AccessControl accessControl) {
+    public SensorSyncApplicationServiceImpl(@Qualifier("sensorSyncApplicationJpaRepository") SensorSyncApplicationRepository sensorSyncApplicationRepository, UserService userService, AccessControl accessControl, AuthenticationService authenticationService) {
         this.sensorSyncApplicationRepository = sensorSyncApplicationRepository;
         this.userService = userService;
         this.accessControl = accessControl;
+        this.authenticationService = authenticationService;
     }
 
     @Override
-    public List<SensorSyncApplication> getAllSensorSyncApplications(String email) {
-        User tmpUser = userService.findByEmail(email);
-        List<SensorSyncApplication> sensorSyncApplications = sensorSyncApplicationRepository.findAll();
-        return accessControl.TS1(sensorSyncApplications, tmpUser.worksAtHospital.getId());
+    public List<SensorSyncApplication> getAllSensorSyncApplications() {
+        User currentlyLoggedinUser = authenticationService.getAuthenticatedUser();
+        if(accessControl.canAccessSensorSyncApplication(currentlyLoggedinUser)){
+            List<SensorSyncApplication> sensorSyncApplications = sensorSyncApplicationRepository.findAll();
+            return accessControl.TS1(sensorSyncApplications, currentlyLoggedinUser.worksAtHospital.getId());
+        }
+
+        throw new ResourceNotAllowed("You are not allowed access to the Sensor Sync Application");
     }
 
     @Override
-    public SensorSyncApplication getSensorSyncApplication(int id, String email) {
-        return sensorSyncApplicationRepository.findOne(id);
+    public SensorSyncApplication getSensorSyncApplication(int id) {
+        User currentlyLoggedinUser = authenticationService.getAuthenticatedUser();
+        if(accessControl.canAccessSensorSyncApplication(currentlyLoggedinUser)) {
+            return sensorSyncApplicationRepository.findOne(id);
+        }
+
+        throw new ResourceNotAllowed("You are not allowed access to the Sensor Sync Application");
     }
 }

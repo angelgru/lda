@@ -32,9 +32,4 @@ public class ObservationController {
     public Observation createObservation(@RequestBody Observation observation, @PathVariable("sensorId") int sensorId) {
         return observationService.createObservation(observation, sensorId);
     }
-
-    @RequestMapping(value = "/{observationId}", method = RequestMethod.DELETE)
-    public void deleteObservation(@PathVariable("observationId") int observationId){
-        observationService.deleteObservation(observationId);
-    }
 }

@@ -13,11 +13,15 @@ import java.util.List;
  */
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Integer>{
+public interface UserRepository {
 
     @Query("select u from User as u where u.email = :email")
     User findByEmail(@Param("email") String email);
 
     @Query("select u from User as u where u.doctor = 1")
     List<User> getDoctors();
+
+    User save(User user);
+
+    void delete(User userToBeDeleted);
 }

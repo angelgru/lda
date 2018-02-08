@@ -41,6 +41,18 @@ public class Treatment {
     public Treatment() {
     }
 
+    public static Treatment copy(Treatment treatment) {
+        Treatment copyTreatment = new Treatment();
+        copyTreatment.setDiagnosis(treatment.getDiagnosis());
+        copyTreatment.setForPatient(treatment.getForPatient());
+        copyTreatment.setPatientRequest(treatment.getPatientRequest());
+        copyTreatment.setFrom(treatment.getFrom());
+        copyTreatment.setHasDoctor(treatment.getHasDoctor());
+        copyTreatment.setTo(treatment.getTo());
+        copyTreatment.setId(treatment.getId());
+        return copyTreatment;
+    }
+
     public int getId() {
         return id;
     }

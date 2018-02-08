@@ -14,15 +14,13 @@ public interface TreatmentService {
 
     public List<Treatment> getAllNonTakenTreatments() throws IOException;
 
-    public List<Treatment> getAllTreatmentsAcceptedByCurrentlyLoggedInDoctor(User user);
+    public List<Treatment> getAllTreatmentsAcceptedByCurrentlyLoggedInDoctor();
 
-    public List<Treatment> getLockedTreatmentsAcceptedByCurrentlyLoggedInDoctor(User user);
+    public List<Treatment> getCompletedTreatmentsAcceptedByCurrentlyLoggedInDoctor();
 
     public Treatment getTreatment(int id);
 
-    public Treatment createTreatment(Treatment treatment, String email);
+    public Treatment createTreatment(Treatment treatment);
 
-    public Treatment updateTreatment(Treatment treatment, int treatmentId, String email, String doctorIPAddress);
-
-    public void deleteTreatment(int id);
+    public Treatment updateTreatment(Treatment treatment, int treatmentId, String doctorIPAddress);
 }

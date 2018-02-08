@@ -4,11 +4,11 @@ import com.angel.lda.model.Hospital;
 import com.angel.lda.service.HospitalService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.List;
 
 /**
@@ -27,12 +27,12 @@ public class HospitalController {
     }
 
     @RequestMapping(value = "/", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<Hospital> getAllHospitals() throws MalformedURLException {
+    public List<Hospital> getAllHospitals() {
         return hospitalService.getAllHospitals();
     }
 
     @RequestMapping(value = "/{hospitalId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Hospital findHospitalById(@PathVariable("hospitalId") int hospitalId) throws IOException {
+    public Hospital findHospitalById(@PathVariable("hospitalId") int hospitalId) {
         return hospitalService.findHospitalById(hospitalId);
     }
 }

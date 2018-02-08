@@ -37,6 +37,18 @@ public class Sensor {
     public Sensor() {
     }
 
+    public static Sensor copy(Sensor sensor) {
+        Sensor newSensor = new Sensor();
+        newSensor.setUnit(sensor.getUnit());
+        newSensor.setType(sensor.getType());
+        newSensor.setRegularTo(sensor.getRegularTo());
+        newSensor.setRegularFrom(sensor.getRegularFrom());
+        newSensor.setOwner(sensor.getOwner());
+        newSensor.setId(sensor.getId());
+        newSensor.setUsedInObservations(sensor.getUsedInObservations());
+        return newSensor;
+    }
+
     public int getId() {
         return id;
     }
