@@ -26,7 +26,7 @@ public class SensorSyncApplicationServiceImpl implements SensorSyncApplicationSe
     private AuthenticationService authenticationService;
 
     @Autowired
-    public SensorSyncApplicationServiceImpl(@Qualifier("sensorSyncApplicationJpaRepository") SensorSyncApplicationRepository sensorSyncApplicationRepository, UserService userService, AccessControl accessControl, AuthenticationService authenticationService) {
+    public SensorSyncApplicationServiceImpl(@Qualifier("sensorSyncApplicationTdbRepository") SensorSyncApplicationRepository sensorSyncApplicationRepository, UserService userService, AccessControl accessControl, AuthenticationService authenticationService) {
         this.sensorSyncApplicationRepository = sensorSyncApplicationRepository;
         this.userService = userService;
         this.accessControl = accessControl;

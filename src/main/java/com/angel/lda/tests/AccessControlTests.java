@@ -20,7 +20,6 @@ public class AccessControlTests {
     @Autowired
     AuthenticationService authenticationService;
 
-
     public AccessControlTests() {
     }
 

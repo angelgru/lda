@@ -15,4 +15,5 @@ public interface HospitalRepository {
   List<Hospital> findAll();
 
   Hospital findOne(int hospitalId);
+
 }

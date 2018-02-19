@@ -31,7 +31,7 @@ public class DatasetProviderImpl implements DatasetProvider {
   public Dataset guardedDataset() {
     if (guardedDataset == null) {
       guardedDataset = TDBFactory.createDataset(environment.getProperty("dataset.location-path"));
-      guardedDataset.asDatasetGraph().getContext().set(TDB.symUnionDefaultGraph, true);
+//      guardedDataset.asDatasetGraph().getContext().set(TDB.symUnionDefaultGraph, true);
       guardedDataset.asDatasetGraph().getContext().set(ARQ.optFilterImplicitJoin, false);
     }
     return guardedDataset;

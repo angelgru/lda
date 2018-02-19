@@ -13,6 +13,4 @@ public interface ObservationRepository {
     Observation save(Observation observation);
 
     Observation findOne(int observationId);
-
-    void delete(Observation observation);
 }
