@@ -10,7 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by Angel on 1/13/2018.
@@ -146,13 +150,22 @@ public class HospitalTdbRepository implements HospitalRepository {
 
     private Location getLocation(String id, Dataset dataset){
 
+        Map<String, String> mapping=new HashMap<>();
+
         String model = "location";
         String URI = "http://lda.finki.ukim.mk/tdb#";
         String locationId = URI + "id";
         String locationLatitude = URI + "latitude";
         String locationLongitude = URI + "longitude";
 
+        mapping.put(locationId, "setId");
+        mapping.put(locationLatitude, "setLat");
+        mapping.put(locationLongitude, "setLongitude");
+
+
         List<Statement> statements = getStatements(dataset, model, URI + id, null, null);
+
+
 
         Location locationInstance = new Location();
 
