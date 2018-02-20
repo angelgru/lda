@@ -1,113 +1,221 @@
 package com.angel.lda.repository.tdb;
 
 import com.angel.lda.model.Hospital;
+import com.angel.lda.model.Location;
 import com.angel.lda.repository.HospitalRepository;
-import org.apache.jena.query.*;
-import org.apache.jena.update.UpdateAction;
+import org.apache.jena.query.Dataset;
+import org.apache.jena.query.ReadWrite;
+import org.apache.jena.rdf.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * Created by Angel on 1/13/2018.
  */
 
+@SuppressWarnings("Duplicates")
 @Repository
 public class HospitalTdbRepository implements HospitalRepository {
 
-  private final DatasetProvider datasetProvider;
+    private final DatasetProvider datasetProvider;
 
-  @Autowired
-  public HospitalTdbRepository(DatasetProvider datasetProvider) {
-    this.datasetProvider = datasetProvider;
-  }
+    @Autowired
+    public HospitalTdbRepository(DatasetProvider datasetProvider) {
+        this.datasetProvider = datasetProvider;
+    }
 
-  private static <T> List<T> makeResultFromQuery(QueryExecution queryExecution, Function<Map<String, String>, T> mapToResult) {
-    List<Map<String, String>> solutions = new ArrayList<>();
+    @SuppressWarnings("Duplicates")
+    @Override
+    public List<Hospital> findAll() {
 
-    ResultSet res = queryExecution.execSelect();
-    res.forEachRemaining(qs -> {
-      Map<String, String> map = new HashMap<>();
-      solutions.add(map);
-      qs.varNames().forEachRemaining(vn -> map.put(vn, qs.get(vn).toString()));
-    });
+        createHospital();
 
-    return solutions.stream().map(mapToResult).collect(Collectors.toList());
-  }
+        Dataset dataset = datasetProvider.guardedDataset();
 
-  @SuppressWarnings("Duplicates")
-  private static <T> List<T> execQuery(Dataset dataset, String query, Function<Map<String, String>, T> mapToResult) {
-    List<T> result;
-    Query selectQuery = QueryFactory.create(query);
-    QueryExecution exec = QueryExecutionFactory.create(selectQuery, dataset);
-    dataset.begin(ReadWrite.READ);
-    result = makeResultFromQuery(exec, mapToResult);
-    dataset.commit();
-    return result;
-  }
+        String URI = "http://lda.finki.ukim.mk/tdb#";
 
-  @Override
-  public List<Hospital> findAll() {
+        String locationModel = "location";
 
-    Dataset dataset = datasetProvider.guardedDataset();
-    dataset.begin(ReadWrite.WRITE);
-    UpdateAction.parseExecute("INSERT DATA { <http://lda.finki.ukim.mk/tdb/Hospital1> <http://lda.finki.ukim.mk/tdb/name> 'St.Joseph'. }", dataset);
-    UpdateAction.parseExecute("INSERT DATA { <http://lda.finki.ukim.mk/tdb/Hospital1> <http://lda.finki.ukim.mk/tdb/id> '1'. }", dataset);
-    UpdateAction.parseExecute("INSERT DATA { <http://lda.finki.ukim.mk/tdb/Hospital1> <http://lda.finki.ukim.mk/tdb/networkAddress> '127.0.0.1'. }", dataset);
-//    Како да ја поставам вредноста за location бидејќи е објект
-    dataset.commit();
+        String locationId = URI + "id";
+        String locationLatitude = URI + "latitude";
+        String locationLongitude = URI + "longitude";
 
-//    dataset = datasetProvider.guardedDataset();
-//    dataset.begin(ReadWrite.READ);
-//    Model model = dataset.getDefaultModel();
-//    QueryExecution queryExecution = QueryExecutionFactory.create("SELECT * WHERE {}", model);
-//    ResultSet resultSet = queryExecution.execSelect();
-//    while(resultSet.hasNext()){
-//      QuerySolution solution = resultSet.nextSolution();
-//      while(solution.varNames().hasNext()){
-//        System.out.println(solution.varNames().next());
-//      }
-//    }
-//
+        String model = "hospital";
+        String id = URI + "id";
+        String name = URI + "name";
+        String networkAddress = URI + "networkAddress";
+        String location = URI + "location";
 
-//    String queryString = "SELECT * {} ";
-//    dataset.begin(ReadWrite.READ);
-//    try (QueryExecution queryExecution = QueryExecutionFactory.create(queryString, dataset)) {
-//      ResultSet resultSet = queryExecution.execSelect();
-//      ResultSetFormatter.out(resultSet);
-//    } finally {
-//      dataset.close();
-//    }
+        List<Statement> statements = getStatements(dataset, model, null, null, null);
 
-    List<Hospital> result = execQuery(dataset, "SELECT * WHERE {}", m -> {
-      Hospital h = new Hospital();
-      h.setName(m.get("http://lda.finki.ukim.mk/tdb/name"));
-      return h;
-    });
+        List<Hospital> hospitals = new ArrayList<>();
 
-    return result;
-  }
+        Hospital hospital = new Hospital();
+        for(Statement statement: statements) {
+            if(statement.getPredicate().toString().equals(id)){
+                hospital = new Hospital();
+                hospital.setId(Integer.valueOf(statement.getObject().toString()));
+                System.out.println(statement.getPredicate().toString());
+            } else if(statement.getPredicate().toString().equals(name)){
+                hospital.setName(statement.getObject().toString());
+                System.out.println(statement.getPredicate().toString());
+            } else if(statement.getPredicate().toString().equals(networkAddress)) {
+                hospital.setNetworkAddress(statement.getObject().toString());
+                hospital.setLocation(getLocation("1", dataset));
+                hospitals.add(hospital);
+                System.out.println(statement.getPredicate().toString());
+            }
+        }
+        return hospitals;
+    }
 
-  @Override
-  public Hospital findOne(int hospitalId) {
-    Dataset dataset = datasetProvider.guardedDataset();
+    @Override
+    public Hospital findOne(int hospitalId) {
+        Dataset dataset = datasetProvider.guardedDataset();
 
-    String queryText = "SELECT * WHERE {?subject <http://lda.finki.ukim.mk/tdb/id> " + String.valueOf(hospitalId) + "}";
+        String URI = "http://lda.finki.ukim.mk/tdb#";
 
-    List<Hospital> result = execQuery(dataset, "SELECT * WHERE {}", m -> {
-      Hospital h = new Hospital();
-      h.setName(m.get("http://lda.finki.ukim.mk/tdb/name"));
-//      h.setId(Integer.valueOf(m.get("http://lda.finki.ukim.mk/tdb/id")));
-      h.setNetworkAddress(m.get("http://lda.finki.ukim.mk/tdb/networkAddress"));
-      return h;
-    });
+        String locationModel = "location";
 
-    return result.get(0);
-  }
+        String locationId = URI + "id";
+        String locationLatitude = URI + "latitude";
+        String locationLongitude = URI + "longitude";
+
+        String model = "hospital";
+        String id = URI + "id";
+        String name = URI + "name";
+        String networkAddress = URI + "networkAddress";
+        String location = URI + "location";
+
+        List<Statement> statements = getStatements(dataset, model, URI + String.valueOf(hospitalId), null, null);
+
+        Hospital hospital = new Hospital();
+        String locId = null;
+        for(Statement statement: statements) {
+            if(statement.getPredicate().toString().equals(id)){
+                hospital.setId(Integer.valueOf(statement.getObject().toString()));
+            } else if(statement.getPredicate().toString().equals(name)){
+                hospital.setName(statement.getObject().toString());
+            } else if(statement.getPredicate().toString().equals(networkAddress)) {
+                hospital.setNetworkAddress(statement.getObject().toString());
+            } else if(statement.getPredicate().toString().equals(location)) {
+                locId = statement.getObject().toString();
+            }
+        }
+
+        hospital.setLocation(getLocation(locId, dataset));
+
+        return hospital;
+    }
+
+    public void createLocation(){
+        Dataset dataset = datasetProvider.guardedDataset();
+
+        String URI = "http://lda.finki.ukim.mk/tdb#";
+
+        String locationModel = "location";
+
+        String locationId = URI + "id";
+        String locationLatitude = URI + "latitude";
+        String locationLongitude = URI + "longitude";
+
+        addStatement(dataset, locationModel, URI + "1", locationId, "1");
+        addStatement(dataset, locationModel, URI + "1", locationLatitude, "55.48");
+        addStatement(dataset, locationModel, URI + "1", locationLongitude, "127");
+    }
+
+    public void createHospital() {
+        Dataset dataset = datasetProvider.guardedDataset();
+
+        String URI = "http://lda.finki.ukim.mk/tdb#";
+
+        String model = "hospital";
+        String id = URI + "id";
+        String name = URI + "name";
+        String networkAddress = URI + "networkAddress";
+        String location = URI + "location";
+
+        addStatement(dataset, model, URI + "2", id, "2");
+        addStatement(dataset, model, URI + "2", name, "ex:hospital");
+        addStatement(dataset, model, URI + "2", networkAddress, "127.0.0.1");
+        addStatement(dataset, model, URI + "2", location, "1");
+    }
+
+    private Location getLocation(String id, Dataset dataset){
+
+        String model = "location";
+        String URI = "http://lda.finki.ukim.mk/tdb#";
+        String locationId = URI + "id";
+        String locationLatitude = URI + "latitude";
+        String locationLongitude = URI + "longitude";
+
+        List<Statement> statements = getStatements(dataset, model, URI + id, null, null);
+
+        Location locationInstance = new Location();
+
+        for(Statement statement: statements) {
+            if(statement.getPredicate().toString().equals(locationId)){
+                locationInstance.setId(Integer.valueOf(statement.getObject().toString()));
+            } else if(statement.getPredicate().toString().equals(locationLatitude)){
+                locationInstance.setLat(Double.valueOf(statement.getObject().toString()));
+            } else if(statement.getPredicate().toString().equals(locationLongitude)) {
+                locationInstance.setLongitude(Double.valueOf(statement.getObject().toString()));
+            }
+        }
+
+        return locationInstance;
+    }
+
+    private List<Statement> getStatements(Dataset ds, String modelName, String subject, String property, String object) {
+        List<Statement> results = new ArrayList<Statement>();
+
+        Model model = null;
+
+        ds.begin(ReadWrite.READ);
+
+        try{
+            model = ds.getNamedModel(modelName);
+
+            Selector selector = new SimpleSelector(
+                    (subject != null) ? model.createResource(subject) : (Resource) null,
+                    (property != null) ? model.createProperty(property) : (Property) null,
+                    (object != null) ? model.createResource(object) : (RDFNode) null
+            );
+
+            StmtIterator it = model.listStatements(selector);
+
+            while(it.hasNext()) {
+                Statement statement = it.next();
+                results.add(statement);
+            }
+
+            ds.commit();
+        } finally {
+            ds.end();
+        }
+
+        return results;
+    }
+
+    private void addStatement(Dataset ds, String modelName, String subject, String property, String object){
+        Model model = null;
+
+        ds.begin(ReadWrite.WRITE);
+        try{
+            model = ds.getNamedModel(modelName);
+
+            Statement statement = model.createStatement(
+                    model.createResource(subject),
+                    model.createProperty(property),
+                    model.createResource(object)
+            );
+            model.add(statement);
+            ds.commit();
+        } finally {
+            ds.end();
+        }
+    }
 }

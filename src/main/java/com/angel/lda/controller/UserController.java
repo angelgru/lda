@@ -1,16 +1,13 @@
 package com.angel.lda.controller;
 
 import com.angel.lda.model.User;
+import com.angel.lda.repository.tdb.UserTdbRepository;
 import com.angel.lda.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 import java.util.List;
-
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 /**
  * Created by Angel on 1/1/2018.
@@ -21,10 +18,12 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 public class UserController {
 
     private UserService userService;
+    private UserTdbRepository userTdbRepository;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, UserTdbRepository userTdbRepository) {
         this.userService = userService;
+        this.userTdbRepository = userTdbRepository;
     }
 
     @RequestMapping(value = "/create", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -46,4 +45,9 @@ public class UserController {
     public List<User> getDoctors() {
         return userService.getDoctors();
     }
+
+//    @RequestMapping(value = "/{email}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+//    public User getUser(@PathVariable("email") String email) {
+//        return userTdbRepository.findByEmail(email);
+//    }
 }

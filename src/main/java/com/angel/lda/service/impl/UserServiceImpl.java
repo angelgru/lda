@@ -27,7 +27,7 @@ public class UserServiceImpl implements UserService {
   private SensorSyncApplicationRepository sensorSyncApplicationRepository;
 
   @Autowired
-  public UserServiceImpl(@Qualifier("userJpaRepository") UserRepository userRepository, AuthenticationService authenticationService, @Qualifier("sensorSyncApplicationJpaRepository") SensorSyncApplicationRepository sensorSyncApplicationRepository, AccessControl accessControl) {
+  public UserServiceImpl(@Qualifier("userTdbRepository") UserRepository userRepository, AuthenticationService authenticationService, @Qualifier("sensorSyncApplicationJpaRepository") SensorSyncApplicationRepository sensorSyncApplicationRepository, AccessControl accessControl) {
     this.userRepository = userRepository;
     this.authenticationService = authenticationService;
     this.sensorSyncApplicationRepository = sensorSyncApplicationRepository;
