@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 /**
@@ -34,8 +35,9 @@ public class SensorSyncApplicationServiceImpl implements SensorSyncApplicationSe
     }
 
     @Override
-    public List<SensorSyncApplication> getAllSensorSyncApplications() {
+    public List<SensorSyncApplication> getAllSensorSyncApplications() throws IllegalAccessException, InvocationTargetException, InstantiationException {
         User currentlyLoggedinUser = authenticationService.getAuthenticatedUser();
+
         if(accessControl.canAccessSensorSyncApplication(currentlyLoggedinUser)){
             List<SensorSyncApplication> sensorSyncApplications = sensorSyncApplicationRepository.findAll();
             return accessControl.TS1(sensorSyncApplications, currentlyLoggedinUser.worksAtHospital.getId());
@@ -45,7 +47,7 @@ public class SensorSyncApplicationServiceImpl implements SensorSyncApplicationSe
     }
 
     @Override
-    public SensorSyncApplication getSensorSyncApplication(int id) {
+    public SensorSyncApplication getSensorSyncApplication(int id) throws IllegalAccessException, InvocationTargetException, InstantiationException {
         User currentlyLoggedinUser = authenticationService.getAuthenticatedUser();
         if(accessControl.canAccessSensorSyncApplication(currentlyLoggedinUser)) {
             return sensorSyncApplicationRepository.findOne(id);

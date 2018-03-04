@@ -38,18 +38,35 @@ public class Treatment {
     @ManyToOne
     private User hasDoctor;
 
+    @JsonIgnore
+    private String tdbForPatientId;
+    @JsonIgnore
+    private String tdbHasDoctor;
+    @JsonIgnore
+    private String tdbFrom;
+    @JsonIgnore
+    private String tdbTo;
+
+
     public Treatment() {
     }
 
     public static Treatment copy(Treatment treatment) {
         Treatment copyTreatment = new Treatment();
-        copyTreatment.setDiagnosis(treatment.getDiagnosis());
-        copyTreatment.setForPatient(treatment.getForPatient());
-        copyTreatment.setPatientRequest(treatment.getPatientRequest());
-        copyTreatment.setFrom(treatment.getFrom());
-        copyTreatment.setHasDoctor(treatment.getHasDoctor());
-        copyTreatment.setTo(treatment.getTo());
-        copyTreatment.setId(treatment.getId());
+        if(treatment.getDiagnosis() != null)
+            copyTreatment.setDiagnosis(treatment.getDiagnosis());
+        if(treatment.getForPatient() != null)
+            copyTreatment.setForPatient(treatment.getForPatient());
+        if(treatment.getPatientRequest() != null)
+            copyTreatment.setPatientRequest(treatment.getPatientRequest());
+        if(treatment.getFrom() != null)
+            copyTreatment.setFrom(treatment.getFrom());
+        if(treatment.getHasDoctor() != null)
+            copyTreatment.setHasDoctor(treatment.getHasDoctor());
+        if(treatment.getTo() != null)
+            copyTreatment.setTo(treatment.getTo());
+        if(treatment.getId() > -1)
+            copyTreatment.setId(treatment.getId());
         return copyTreatment;
     }
 
@@ -109,5 +126,35 @@ public class Treatment {
         this.diagnosis = diagnosis;
     }
 
+    public String getTdbForPatientId() {
+        return tdbForPatientId;
+    }
 
+    public void setTdbForPatientId(String tdbForPatientId) {
+        this.tdbForPatientId = tdbForPatientId;
+    }
+
+    public String getTdbFrom() {
+        return tdbFrom;
+    }
+
+    public void setTdbFrom(String tdbFrom) {
+        this.tdbFrom = tdbFrom;
+    }
+
+    public String getTdbTo() {
+        return tdbTo;
+    }
+
+    public void setTdbTo(String tdbTo) {
+        this.tdbTo = tdbTo;
+    }
+
+    public String getTdbHasDoctor() {
+        return tdbHasDoctor;
+    }
+
+    public void setTdbHasDoctor(String tdbHasDoctor) {
+        this.tdbHasDoctor = tdbHasDoctor;
+    }
 }

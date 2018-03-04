@@ -7,10 +7,12 @@ import com.angel.lda.model.User;
 import com.angel.lda.repository.SensorSyncApplicationRepository;
 import com.angel.lda.repository.UserRepository;
 import com.angel.lda.service.UserService;
+import com.angel.lda.utils.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,7 +29,7 @@ public class UserServiceImpl implements UserService {
   private SensorSyncApplicationRepository sensorSyncApplicationRepository;
 
   @Autowired
-  public UserServiceImpl(@Qualifier("userTdbRepository") UserRepository userRepository, AuthenticationService authenticationService, @Qualifier("sensorSyncApplicationJpaRepository") SensorSyncApplicationRepository sensorSyncApplicationRepository, AccessControl accessControl) {
+  public UserServiceImpl(@Qualifier("userTdbRepository") UserRepository userRepository, AuthenticationService authenticationService, @Qualifier("sensorSyncApplicationTdbRepository") SensorSyncApplicationRepository sensorSyncApplicationRepository, AccessControl accessControl) {
     this.userRepository = userRepository;
     this.authenticationService = authenticationService;
     this.sensorSyncApplicationRepository = sensorSyncApplicationRepository;
@@ -37,16 +39,15 @@ public class UserServiceImpl implements UserService {
   @Override
   public User createUser(User user) {
     user.setActive(1);
-    user.setDoctor(0);
+    user.setDoctor(1);
     User returnUser = User.copy(userRepository.save(user));
     returnUser.setPassword(null);
     return returnUser;
   }
 
-
   //    Преку метод во AccessControl спречувам можност корисникот да може да промени нешто друго освен име, број и број за итни повици
   @Override
-  public User updateUser(User sourceUser) {
+  public User updateUser(User sourceUser) throws IllegalAccessException, InvocationTargetException, InstantiationException {
     User targetUser = User.copy(authenticationService.getAuthenticatedUser());
     if(sourceUser.getEmail() != null) {
       targetUser.setEmail(sourceUser.getEmail());
@@ -78,16 +79,17 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public void setSensorApplication(int sensorApplicationId) {
+  public void setSensorApplication(int sensorApplicationId) throws IllegalAccessException, InvocationTargetException, InstantiationException {
     User saveUser = User.copy(authenticationService.getAuthenticatedUser());
     SensorSyncApplication sensorSyncApplication = sensorSyncApplicationRepository.findOne(sensorApplicationId);
-    if (sensorSyncApplication != null)
+    if (sensorSyncApplication != null) {
       saveUser.setUsesSensorSyncApplication(sensorSyncApplication);
+    }
     userRepository.save(saveUser);
   }
 
   @Override
-  public List<User> getDoctors() {
+  public List<User> getDoctors() throws IllegalAccessException, InstantiationException, InvocationTargetException {
     List<User> doctors = new ArrayList<>();
     User doctor;
     for(User doc: userRepository.getDoctors()){

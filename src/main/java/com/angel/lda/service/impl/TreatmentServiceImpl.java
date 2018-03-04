@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -33,7 +35,7 @@ public class TreatmentServiceImpl implements TreatmentService{
     private UserService userService;
 
     @Autowired
-    public TreatmentServiceImpl(@Qualifier("treatmentJpaRepository") TreatmentRepository treatmentRepository, @Qualifier("userJpaRepository") UserRepository userRepository, AccessControl accessControl, AuthenticationService authenticationService, UserService userService) {
+    public TreatmentServiceImpl(@Qualifier("treatmentTdbRepository") TreatmentRepository treatmentRepository, @Qualifier("userTdbRepository") UserRepository userRepository, AccessControl accessControl, AuthenticationService authenticationService, UserService userService) {
         this.treatmentRepository = treatmentRepository;
         this.userRepository = userRepository;
         this.accessControl = accessControl;
@@ -42,7 +44,7 @@ public class TreatmentServiceImpl implements TreatmentService{
     }
 
     @Override
-    public List<Treatment> getAllNonTakenTreatments() throws IOException {
+    public List<Treatment> getAllNonTakenTreatments() throws IOException, IllegalAccessException, InvocationTargetException, InstantiationException, ParseException {
         User currentlyLoggedInUser = authenticationService.getAuthenticatedUser();
         if(accessControl.canTakeTreatments(currentlyLoggedInUser)) {
             List<Treatment> treatments = treatmentRepository.getAllNonTakenTreatments();
@@ -53,19 +55,19 @@ public class TreatmentServiceImpl implements TreatmentService{
     }
 
     @Override
-    public List<Treatment> getAllTreatmentsAcceptedByCurrentlyLoggedInDoctor() {
+    public List<Treatment> getAllTreatmentsAcceptedByCurrentlyLoggedInDoctor() throws IllegalAccessException, InvocationTargetException, InstantiationException {
         List<Treatment> treatments = treatmentRepository.getAllTreatmentsAcceptedByCurrentlyLoggedInDoctor(authenticationService.getAuthenticatedUser());
         return getTreatmentsReady(treatments);
     }
 
     @Override
-    public List<Treatment> getCompletedTreatmentsAcceptedByCurrentlyLoggedInDoctor() {
+    public List<Treatment> getCompletedTreatmentsAcceptedByCurrentlyLoggedInDoctor() throws IllegalAccessException, InvocationTargetException, InstantiationException {
         List<Treatment> treatments = treatmentRepository.getCompletedTreatmentsAcceptedByCurrentlyLoggedInDoctor(authenticationService.getAuthenticatedUser());
         return getTreatmentsReady(treatments);
     }
 
     @Override
-    public Treatment getTreatment(int id) {
+    public Treatment getTreatment(int id) throws IllegalAccessException, InvocationTargetException, InstantiationException {
         Treatment treatment = treatmentRepository.getTreatmentById(authenticationService.getAuthenticatedUser(), id);
         if(treatment == null){
             throw new ResourceNotFound("Treatment doesn't exist");
@@ -93,7 +95,7 @@ public class TreatmentServiceImpl implements TreatmentService{
     }
 
     @Override
-    public Treatment createTreatment(Treatment treatment) {
+    public Treatment createTreatment(Treatment treatment) throws IllegalAccessException, InvocationTargetException, InstantiationException {
         Treatment newTreatment = new Treatment();
         newTreatment.setPatientRequest(treatment.getPatientRequest());
         newTreatment.setFrom(new Date());
@@ -108,7 +110,7 @@ public class TreatmentServiceImpl implements TreatmentService{
     }
 
     @Override
-    public Treatment updateTreatment(Treatment treatment, int treatmentId, String doctorIPAddress) {
+    public Treatment updateTreatment(Treatment treatment, int treatmentId, String doctorIPAddress) throws IllegalAccessException, InvocationTargetException, InstantiationException {
 
 //      Проверува дали моментално логираниот корисник кој ја повикува оваа функција има улога доктор
 //      Ако не е доктор се фрла exception
@@ -116,7 +118,15 @@ public class TreatmentServiceImpl implements TreatmentService{
             throw new ResourceNotAllowed("Only doctors can update treatments!!!");
         }
 
+        if(treatmentRepository.findOne(treatmentId) == null) {
+            System.out.println("TREATMENT FOUND");
+        }
+
         Treatment updateTreatment = Treatment.copy(treatmentRepository.findOne(treatmentId));
+
+        if(updateTreatment.getHasDoctor() == null) {
+            System.out.println("NULL");
+        }
 
         if(updateTreatment == null) {
             throw new ResourceNotFound("Treatment not found!!!");

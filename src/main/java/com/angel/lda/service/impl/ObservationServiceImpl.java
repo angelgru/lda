@@ -22,7 +22,7 @@ public class ObservationServiceImpl implements ObservationService{
     private SensorRepository sensorRepository;
 
     @Autowired
-    public ObservationServiceImpl(@Qualifier("observationJpaRepository") ObservationRepository observationRepository, @Qualifier("sensorJpaRepository") SensorRepository sensorRepository) {
+    public ObservationServiceImpl(@Qualifier("observationTdbRepository") ObservationRepository observationRepository, @Qualifier("sensorTdbRepository") SensorRepository sensorRepository) {
         this.observationRepository = observationRepository;
         this.sensorRepository = sensorRepository;
     }

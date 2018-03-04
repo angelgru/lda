@@ -57,7 +57,7 @@ public class AccessControl {
 
 //    P1 The patients can access everything about the doctors from ex:hospital
 //    Филтрирање на листата од доктори при што ги враќам само оние кои работат во болницата со име hospital
-    @PostFilter("filterObject.worksAtHospital.name.equals('hospital')")
+    @PostFilter("filterObject.worksAtHospital.name.equals('ex:hospital')")
     public List<User> P1(List<User> doctors) {
         return doctors;
     }
