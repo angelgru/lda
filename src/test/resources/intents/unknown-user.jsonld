@@ -1,0 +1,26 @@
+{
+    "@context": {
+      "int": "http://int.example.com#",
+      "sp": "http://spin.com#",
+      "ex": "http://example.com/"
+    },
+    "@graph": [
+      {
+        "int:action": {
+          "@type": "sp:Select"
+        },
+        "int:requester": {
+          "@id": "ex:unknown",
+          "@type": "int:Requester"
+        },
+        "int:agent": {
+          "@type": "int:Agent",
+          "int:user_agent": "Mozila 5.0...",
+          "int:address": {
+            "int:ip_value": "192.168.100.1",
+            "int:network": "192.168.100.0/24"
+          }
+        }
+      }
+    ]
+  }

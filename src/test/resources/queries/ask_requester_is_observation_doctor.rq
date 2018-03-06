@@ -1,0 +1,15 @@
+# The doctors can manage their patients' measurements from their hospital's network during office hours
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX ex: <http://example.com/>
+PREFIX sm: <http://sm.example.com#>
+PREFIX int: <http://int.example.com#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX sp: <http://spin.com#>
+
+ASK
+WHERE {
+	?v9 sm:has_doctor ?r;
+	  sm:for_patient ?v11.
+	?sensor sm:owner ?v11.
+}

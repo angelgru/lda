@@ -1,0 +1,78 @@
+<http://example.com/hospital> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sm.example.com#Hospital> <http://example.com/hospital>.
+<http://example.com/hospital> <http://sm.example.com#network_address> '192.168.100.0/24' <http://example.com/hospital>.
+<http://example.com/hospital> <http://sm.example.com#location> _:l1 <http://example.com/hospital>.
+
+_:l1 <http://sm.example.com#latitude> "42.004"^^<http://www.w3.org/2001/XMLSchema#double> <http://example.com/hospital>.
+_:l1 <http://sm.example.com#longitude> "21.409"^^<http://www.w3.org/2001/XMLSchema#double> <http://example.com/hospital>.
+
+<http://example.com/ssa> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sm.example.com#SensorSyncApplicaton> <http://example.com/hospital>.
+<http://example.com/ssa> <http://sm.example.com#provided_by> <http://example.com/hospital> <http://example.com/hospital>.
+
+<http://example.com/john> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sm.example.com#User> <http://example.com/hospital>.
+<http://example.com/john> <http://sm.example.com#works_at> <http://example.com/hospital> <http://example.com/hospital>.
+<http://example.com/john> <http://sm.example.com#phone> '070 111 111' <http://example.com/hospital>. 
+
+<http://example.com/ben> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sm.example.com#User> <http://example.com/hospital>.
+<http://example.com/ben> <http://sm.example.com#works_at> <http://example.com/hospital> <http://example.com/hospital>.
+<http://example.com/ben> <http://sm.example.com#phone> '075 555 555' <http://example.com/hospital>. 
+
+<http://example.com/bob> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sm.example.com#User> <http://example.com/hospital>.
+<http://example.com/bob> <http://sm.example.com#uses> <http://example.com/ssa> <http://example.com/hospital>.
+<http://example.com/bob> <http://sm.example.com#emergency_phone> '075 123 456' <http://example.com/hospital>.
+
+<http://example.com/alice> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sm.example.com#User> <http://example.com/hospital>.
+<http://example.com/alice> <http://sm.example.com#uses> <http://example.com/ssa> <http://example.com/hospital>.
+<http://example.com/alice> <http://sm.example.com#emergency_phone> '075 987 654' <http://example.com/hospital>.
+
+<http://example.com/s1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sm.example.com#HealthSensor> <http://example.com/hospital>.
+<http://example.com/s1> <http://sm.example.com#stype> 'Pulse' <http://example.com/hospital>.
+<http://example.com/s1> <http://sm.example.com#unit> 'bpm' <http://example.com/hospital>.
+<http://example.com/s1> <http://sm.example.com#regular_from> "60"^^<http://www.w3.org/2001/XMLSchema#int> <http://example.com/hospital>.
+<http://example.com/s1> <http://sm.example.com#regular_to> "140"^^<http://www.w3.org/2001/XMLSchema#int> <http://example.com/hospital>.
+<http://example.com/s1> <http://sm.example.com#owner> <http://example.com/bob> <http://example.com/hospital>.
+
+<http://example.com/s2> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sm.example.com#Sensor> <http://example.com/hospital>.
+<http://example.com/s2> <http://sm.example.com#stype> 'Temperature' <http://example.com/hospital>.
+<http://example.com/s2> <http://sm.example.com#unit> 'C' <http://example.com/hospital>.
+<http://example.com/s2> <http://sm.example.com#owner> <http://example.com/alice> <http://example.com/hospital>.
+<http://example.com/s2> <http://sm.example.com#location> _:loc <http://example.com/hospital>.  
+
+_:loc <http://sm.example.com#latitude> "42.010"^^<http://www.w3.org/2001/XMLSchema#double> <http://example.com/hospital>.
+_:loc <http://sm.example.com#longitude> "21.410"^^<http://www.w3.org/2001/XMLSchema#double> <http://example.com/hospital>. 
+
+
+
+<http://example.com/o1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sm.example.com#Observation> <http://example.com/ssa>.
+<http://example.com/o1> <http://sm.example.com#sensor> <http://example.com/s1> <http://example.com/ssa>.
+<http://example.com/o1> <http://sm.example.com#val> "66"^^<http://www.w3.org/2001/XMLSchema#int> <http://example.com/ssa>.
+<http://example.com/o1> <http://sm.example.com#time> "1500386600319"^^<http://www.w3.org/2001/XMLSchema#long> <http://example.com/ssa>. 
+
+<http://example.com/o2> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sm.example.com#Observation> <http://example.com/ssa>.
+<http://example.com/o2> <http://sm.example.com#sensor> <http://example.com/s1> <http://example.com/ssa>.
+<http://example.com/o2> <http://sm.example.com#val> "57"^^<http://www.w3.org/2001/XMLSchema#int> <http://example.com/ssa>.
+<http://example.com/o2> <http://sm.example.com#time> "1500386690319"^^<http://www.w3.org/2001/XMLSchema#long> <http://example.com/ssa>.
+
+<http://example.com/o3> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sm.example.com#Observation> <http://example.com/ssa>.
+<http://example.com/o3> <http://sm.example.com#sensor> <http://example.com/s2> <http://example.com/ssa>.
+<http://example.com/o3> <http://sm.example.com#val> "28"^^<http://www.w3.org/2001/XMLSchema#int> <http://example.com/ssa>.
+<http://example.com/o3> <http://sm.example.com#time> "1500386690319"^^<http://www.w3.org/2001/XMLSchema#long> <http://example.com/ssa>.
+
+
+
+<http://example.com/t1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sm.example.com#Treatment> <http://example.com/hospital>.
+<http://example.com/t1> <http://sm.example.com#for_patient> <http://example.com/bob> <http://example.com/hospital>.
+<http://example.com/t1> <http://sm.example.com#has_doctor> <http://example.com/john> <http://example.com/hospital>.
+<http://example.com/t1> <http://sm.example.com#from> '2017-07-20' <http://example.com/hospital>.
+<http://example.com/t1> <http://sm.example.com#to> '2017-09-20' <http://example.com/hospital>.
+
+<http://example.com/t2> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sm.example.com#Treatment> <http://example.com/hospital>.
+<http://example.com/t2> <http://sm.example.com#for_patient> <http://example.com/alice> <http://example.com/hospital>.
+<http://example.com/t2> <http://sm.example.com#has_doctor> <http://example.com/ben> <http://example.com/hospital>.
+<http://example.com/t2> <http://sm.example.com#from> '2017-04-13' <http://example.com/hospital>.
+<http://example.com/t2> <http://sm.example.com#to> '2017-04-23' <http://example.com/hospital>.
+
+<http://example.com/t3> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sm.example.com#Treatment> <http://example.com/hospital>.
+<http://example.com/t3> <http://sm.example.com#for_patient> <http://example.com/john> <http://example.com/hospital>.
+<http://example.com/t3> <http://sm.example.com#has_doctor> <http://example.com/ben> <http://example.com/hospital>.
+<http://example.com/t3> <http://sm.example.com#from> '2017-07-01' <http://example.com/hospital>.
+<http://example.com/t3> <http://sm.example.com#to> '2017-09-20' <http://example.com/hospital>.
