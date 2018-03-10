@@ -20,7 +20,7 @@ public class AuthenticationService {
 
 
   @Autowired
-  public AuthenticationService(@Qualifier("userTdbRepository") UserRepository repository) {
+  public AuthenticationService(UserRepository repository) {
     this.repository = repository;
   }
 

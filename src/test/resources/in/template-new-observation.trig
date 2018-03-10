@@ -8,6 +8,6 @@
 ex:ssa {
     ex:o%d   a          sm:Observation ;
             sm:sensor  ex:s%d ;
-            sm:time    "%d"^^xsd:integer;
+            sm:time    "%d"^^xsd:integer ;
             sm:val     "%d"^^xsd:integer .
 }

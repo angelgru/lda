@@ -9,6 +9,7 @@ import com.angel.lda.utils.StatementsFromTdb;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.Statement;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 import java.lang.reflect.InvocationTargetException;
@@ -22,6 +23,7 @@ import java.util.*;
  */
 @SuppressWarnings("Duplicates")
 @Repository
+@Profile("tdb")
 public class TreatmentTdbRepository implements TreatmentRepository {
 
     private final DatasetProvider datasetProvider;
@@ -38,24 +40,20 @@ public class TreatmentTdbRepository implements TreatmentRepository {
 
         Dataset dataset = datasetProvider.guardedDataset();
 
-        String URI = "http://lda.finki.ukim.mk/tdb#";
-
-        String model = "treatment";
-        String id = URI + "id";
-        String from = URI + "from";
-        String to = URI + "to";
-        String patientRequest = URI + "patientRequest";
-        String diagnosis = URI + "diagnosis";
-        String forPatient = URI + "forPatient";
-        String hasDoctor = URI + "hasDoctor";
+        String model = "http://example.com/treatment";
+        String from = "http://sm.example.com#from";
+        String to = "http://sm.example.com#to";
+        String patientRequest = "http://sm.example.com#patient_request";
+        String diagnosis = "http://sm.example.com#diagnosis";
+        String forPatient = "http://sm.example.com#for_patient";
+        String hasDoctor = "http://sm.example.com#has_doctor";
 
         Map<String, String> mapping=new HashMap<>();
 
         List<Statement> statements = StatementsFromTdb.getStatements(dataset, model, null, null, null);
 
-        mapping.put(id, "setId");
-        mapping.put(from, "setTdbFrom");
-        mapping.put(to, "setTdbTo");
+        mapping.put(from, "setFrom");
+        mapping.put(to, "setTo");
         mapping.put(patientRequest, "setPatientRequest");
         mapping.put(diagnosis, "setDiagnosis");
         mapping.put(forPatient, "setTdbForPatientId");
@@ -67,24 +65,23 @@ public class TreatmentTdbRepository implements TreatmentRepository {
             throw new ResourceNotFound("There aren't any treatments.");
 
         List<Treatment> treatmentsList = new ArrayList<>();
-        Treatment treatment = null;
+        Treatment treatment;
 
         while(iterator.hasNext()) {
             treatment = iterator.next();
-//            DateFormat dateFormat = new SimpleDateFormat("MMMM d, yyyy");
-//            Date fromDate = dateFormat.parse(treatment.getTdbFrom());
-//            Date toDate = dateFormat.parse(treatment.getTdbTo());
-//            treatment.setFrom(fromDate);
-//            treatment.setTo(toDate);
-            User user = userTdbRepository.findByEmail(treatment.getTdbForPatientId());
-            if(user != null)
-                treatment.setForPatient(user);
 
-            User doctor = userTdbRepository.findByEmail(treatment.getTdbHasDoctor());
-            if(doctor != null)
-                treatment.setHasDoctor(doctor);
+            String patientEmail = null;
+            if(treatment.getTdbForPatientId() != null)
+                patientEmail = treatment.getTdbForPatientId().substring(19, treatment.getTdbForPatientId().length());
 
-            if(treatment.getHasDoctor() == null)
+            User patient  = null;
+            if(patientEmail != null) {
+                patient = userTdbRepository.findByEmail(patientEmail);
+            }
+            if(patient != null)
+                treatment.setForPatient(patient);
+
+            if(treatment.getTdbHasDoctor() == null)
                 treatmentsList.add(treatment);
         }
 
@@ -92,30 +89,27 @@ public class TreatmentTdbRepository implements TreatmentRepository {
     }
 
     @Override
-    public List<Treatment> getAllTreatmentsAcceptedByCurrentlyLoggedInDoctor(User users) throws IllegalAccessException, InstantiationException, InvocationTargetException {
+    public List<Treatment> getAllTreatmentsAcceptedByCurrentlyLoggedInDoctor(User user) throws IllegalAccessException, InstantiationException, InvocationTargetException {
         Dataset dataset = datasetProvider.guardedDataset();
 
-        String URI = "http://lda.finki.ukim.mk/tdb#";
-
-        String model = "treatment";
-        String id = URI + "id";
-        String from = URI + "from";
-        String to = URI + "to";
-        String patientRequest = URI + "patientRequest";
-        String diagnosis = URI + "diagnosis";
-        String forPatient = URI + "forPatient";
+        String model = "http://example.com/treatment";
+        String from = "http://sm.example.com#from";
+        String to = "http://sm.example.com#to";
+        String patientRequest = "http://sm.example.com#patient_request";
+        String diagnosis = "http://sm.example.com#diagnosis";
+        String forPatient = "http://sm.example.com#for_patient";
+        String hasDoctor = "http://sm.example.com#has_doctor";
 
         Map<String, String> mapping=new HashMap<>();
 
         List<Statement> statements = StatementsFromTdb.getStatements(dataset, model, null, null, null);
 
-        mapping.put(id, "setId");
-        mapping.put(from, "setTdbFrom");
-        mapping.put(to, "setTdbTo");
+        mapping.put(from, "setFrom");
+        mapping.put(to, "setTo");
         mapping.put(patientRequest, "setPatientRequest");
         mapping.put(diagnosis, "setDiagnosis");
         mapping.put(forPatient, "setTdbForPatientId");
-
+        mapping.put(hasDoctor, "setTdbHasDoctor");
         Collection<Treatment> treatments = StatementToObjectUtil.parseList(statements, Treatment.class, mapping);
         Iterator<Treatment> iterator = treatments.iterator();
 
@@ -123,56 +117,59 @@ public class TreatmentTdbRepository implements TreatmentRepository {
             throw new ResourceNotFound("There aren't any treatments.");
 
         List<Treatment> treatmentsList = new ArrayList<>();
-        Treatment treatment = null;
+        Treatment treatment;
 
         while(iterator.hasNext()) {
             treatment = iterator.next();
-//            DateFormat dateFormat = new SimpleDateFormat("MMMM d, yyyy");
-//            Date fromDate = dateFormat.parse(treatment.getTdbFrom());
-//            Date toDate = dateFormat.parse(treatment.getTdbTo());
-//            treatment.setFrom(fromDate);
-//            treatment.setTo(toDate);
-            User user = userTdbRepository.findByEmail(treatment.getTdbForPatientId());
-            if(user != null)
-                treatment.setForPatient(user);
 
-            User doctor = userTdbRepository.findByEmail(treatment.getTdbHasDoctor());
-            if(doctor != null)
-                treatment.setHasDoctor(doctor);
+            String patientEmail = null;
+            if(treatment.getTdbForPatientId() != null)
+                patientEmail = treatment.getTdbForPatientId().substring(19, treatment.getTdbForPatientId().length());
 
-            assert doctor != null;
-            if(treatment.getHasDoctor() != null && treatment.getHasDoctor().getEmail().equals(doctor.getEmail()) && treatment.getDiagnosis() == null)
+            User patient = null;
+            if(patientEmail != null)
+                patient = userTdbRepository.findByEmail(patientEmail);
+
+            if(patient != null)
+                treatment.setForPatient(patient);
+
+            String treatmentDoctor = null;
+            String loggedInUser = "http://example.com/" + user.getEmail();
+            if(treatment.getTdbHasDoctor() != null){
+                treatmentDoctor = treatment.getTdbHasDoctor().trim();
+            }
+
+            assert treatmentDoctor != null;
+            if(loggedInUser.equals(treatmentDoctor)) {
                 treatmentsList.add(treatment);
+            }
         }
 
         return treatmentsList;
     }
 
     @Override
-    public List<Treatment> getCompletedTreatmentsAcceptedByCurrentlyLoggedInDoctor(User users) throws IllegalAccessException, InstantiationException, InvocationTargetException {
+    public List<Treatment> getCompletedTreatmentsAcceptedByCurrentlyLoggedInDoctor(User user) throws IllegalAccessException, InstantiationException, InvocationTargetException {
         Dataset dataset = datasetProvider.guardedDataset();
 
-        String URI = "http://lda.finki.ukim.mk/tdb#";
-
-        String model = "treatment";
-        String id = URI + "id";
-        String from = URI + "from";
-        String to = URI + "to";
-        String patientRequest = URI + "patientRequest";
-        String diagnosis = URI + "diagnosis";
-        String forPatient = URI + "forPatient";
+        String model = "http://example.com/treatment";
+        String from = "http://sm.example.com#from";
+        String to = "http://sm.example.com#to";
+        String patientRequest = "http://sm.example.com#patient_request";
+        String diagnosis = "http://sm.example.com#diagnosis";
+        String forPatient = "http://sm.example.com#for_patient";
+        String hasDoctor = "http://sm.example.com#has_doctor";
 
         Map<String, String> mapping=new HashMap<>();
 
         List<Statement> statements = StatementsFromTdb.getStatements(dataset, model, null, null, null);
 
-        mapping.put(id, "setId");
-        mapping.put(from, "setTdbFrom");
-        mapping.put(to, "setTdbTo");
+        mapping.put(from, "setFrom");
+        mapping.put(to, "setTo");
         mapping.put(patientRequest, "setPatientRequest");
         mapping.put(diagnosis, "setDiagnosis");
         mapping.put(forPatient, "setTdbForPatientId");
-
+        mapping.put(hasDoctor, "setTdbHasDoctor");
         Collection<Treatment> treatments = StatementToObjectUtil.parseList(statements, Treatment.class, mapping);
         Iterator<Treatment> iterator = treatments.iterator();
 
@@ -180,25 +177,28 @@ public class TreatmentTdbRepository implements TreatmentRepository {
             throw new ResourceNotFound("There aren't any treatments.");
 
         List<Treatment> treatmentsList = new ArrayList<>();
-        Treatment treatment = null;
+        Treatment treatment;
 
         while(iterator.hasNext()) {
             treatment = iterator.next();
-//            DateFormat dateFormat = new SimpleDateFormat("MMMM d, yyyy");
-//            Date fromDate = dateFormat.parse(treatment.getTdbFrom());
-//            Date toDate = dateFormat.parse(treatment.getTdbTo());
-//            treatment.setFrom(fromDate);
-//            treatment.setTo(toDate);
-            User user = userTdbRepository.findByEmail(treatment.getTdbForPatientId());
-            if(user != null)
-                treatment.setForPatient(user);
 
-            User doctor = userTdbRepository.findByEmail(treatment.getTdbHasDoctor());
-            if(doctor != null)
-                treatment.setHasDoctor(doctor);
 
-            if(treatment.getHasDoctor() != null && treatment.getDiagnosis() != null)
+            String patientEmail = treatment.getTdbForPatientId().substring(19, treatment.getTdbForPatientId().length());
+
+            User patient = userTdbRepository.findByEmail(patientEmail);
+            if(patient != null)
+                treatment.setForPatient(patient);
+
+            String treatmentDoctor = null;
+            String loggedInUser = "http://example.com/" + user.getEmail();
+            if(treatment.getTdbHasDoctor() != null){
+                treatmentDoctor = treatment.getTdbHasDoctor().trim();
+            }
+
+            assert treatmentDoctor != null;
+            if(loggedInUser.equals(treatmentDoctor) && treatment.getDiagnosis() != null) {
                 treatmentsList.add(treatment);
+            }
         }
 
         return treatmentsList;
@@ -206,65 +206,107 @@ public class TreatmentTdbRepository implements TreatmentRepository {
 
     @Override
     public Treatment getTreatmentById(User user, int id) throws IllegalAccessException, InvocationTargetException, InstantiationException {
-        return findOne(id);
-    }
-
-    @Override
-    public Treatment findOne(int givenId) throws IllegalAccessException, InstantiationException, InvocationTargetException {
         Dataset dataset = datasetProvider.guardedDataset();
 
-        String URI = "http://lda.finki.ukim.mk/tdb#";
-
-        String model = "treatment";
-        String id = URI + "id";
-        String from = URI + "from";
-        String to = URI + "to";
-        String patientRequest = URI + "patientRequest";
-        String diagnosis = URI + "diagnosis";
-        String forPatient = URI + "forPatient";
-        String hasDoctor = URI + "hasDoctor";
+        String model = "http://example.com/treatment";
+        String subject = "http://example.com/treatment" + id;
+        String from = "http://sm.example.com#from";
+        String to = "http://sm.example.com#to";
+        String patientRequest = "http://sm.example.com#patient_request";
+        String diagnosis = "http://sm.example.com#diagnosis";
+        String forPatient = "http://sm.example.com#for_patient";
+        String hasDoctor = "http://sm.example.com#has_doctor";
 
         Map<String, String> mapping=new HashMap<>();
 
-        List<Statement> statements = StatementsFromTdb.getStatements(dataset, model, URI + givenId, null, null);
+        List<Statement> statements = StatementsFromTdb.getStatements(dataset, model, subject, null, null);
 
-        mapping.put(id, "setId");
         mapping.put(from, "setTdbFrom");
         mapping.put(to, "setTdbTo");
         mapping.put(patientRequest, "setPatientRequest");
         mapping.put(diagnosis, "setDiagnosis");
         mapping.put(forPatient, "setTdbForPatientId");
         mapping.put(hasDoctor, "setTdbHasDoctor");
-
         Collection<Treatment> treatments = StatementToObjectUtil.parseList(statements, Treatment.class, mapping);
         Iterator<Treatment> iterator = treatments.iterator();
 
         if(!iterator.hasNext())
             throw new ResourceNotFound("There aren't any treatments.");
 
-        List<Treatment> treatmentsList = new ArrayList<>();
         Treatment treatment = null;
 
         while(iterator.hasNext()) {
-
             treatment = iterator.next();
-            System.out.println("TREATMENT ID " + treatment.getId());
-//            DateFormat dateFormat = new SimpleDateFormat("MMMM d, yyyy");
-//            Date fromDate = dateFormat.parse(treatment.getTdbFrom());
-//            Date toDate = dateFormat.parse(treatment.getTdbTo());
-//            treatment.setFrom(fromDate);
-//            treatment.setTo(toDate);
-            User user = userTdbRepository.findByEmail(treatment.getTdbForPatientId());
-            if(user != null)
-                treatment.setForPatient(user);
-            User doctor = userTdbRepository.findByEmail(treatment.getTdbHasDoctor());
+            String patientEmail = treatment.getTdbForPatientId().substring(19, treatment.getTdbForPatientId().length());
+
+            User patient = userTdbRepository.findByEmail(patientEmail);
+            if(patient != null)
+                treatment.setForPatient(patient);
+
+            if(treatment.getTdbHasDoctor() != null && treatment.getTdbHasDoctor().equals("http://example.com/" + user.getEmail())) {
+                treatment.setHasDoctor(user);
+            } else{
+                treatment = null;
+            }
+        }
+        if(treatment == null)
+            throw new ResourceNotFound("Non existing treatment!");
+        return treatment;
+    }
+
+    @Override
+    public Treatment findOne(int id) throws IllegalAccessException, InstantiationException, InvocationTargetException {
+        Dataset dataset = datasetProvider.guardedDataset();
+
+        String model = "http://example.com/treatment";
+        String subject = "http://example.com/treatment" + id;
+        String from = "http://sm.example.com#from";
+        String to = "http://sm.example.com#to";
+        String patientRequest = "http://sm.example.com#patient_request";
+        String diagnosis = "http://sm.example.com#diagnosis";
+        String forPatient = "http://sm.example.com#for_patient";
+        String hasDoctor = "http://sm.example.com#has_doctor";
+
+        Map<String, String> mapping=new HashMap<>();
+
+        List<Statement> statements = StatementsFromTdb.getStatements(dataset, model, subject, null, null);
+        System.out.println("STATEMENTS NUMBER " + statements.size());
+
+        mapping.put(from, "setTdbFrom");
+        mapping.put(to, "setTdbTo");
+        mapping.put(patientRequest, "setPatientRequest");
+        mapping.put(diagnosis, "setDiagnosis");
+        mapping.put(forPatient, "setTdbForPatientId");
+        mapping.put(hasDoctor, "setTdbHasDoctor");
+        Collection<Treatment> treatments = StatementToObjectUtil.parseList(statements, Treatment.class, mapping);
+        Iterator<Treatment> iterator = treatments.iterator();
+
+        if(!iterator.hasNext())
+            throw new ResourceNotFound("There aren't any treatments.");
+
+        Treatment treatment = null;
+
+        while(iterator.hasNext()) {
+            treatment = iterator.next();
+            String patientEmail = treatment.getTdbForPatientId().substring(19, treatment.getTdbForPatientId().length());
+
+            User patient = userTdbRepository.findByEmail(patientEmail);
+            if(patient != null)
+                treatment.setForPatient(patient);
+
+            String doctorEmail;
+            doctorEmail = treatment.getTdbHasDoctor().substring(19, treatment.getTdbHasDoctor().length());
+
+            User doctor = null;
+            if(doctorEmail != null) {
+                doctor = userTdbRepository.findByEmail(doctorEmail);
+            }
             if(doctor != null)
                 treatment.setHasDoctor(doctor);
-
-            treatmentsList.add(treatment);
         }
-
-        return treatmentsList.get(0);
+        if(treatment == null)
+            throw new ResourceNotFound("Non existing treatment!");
+        return treatment;
     }
 
     @Override
@@ -272,27 +314,31 @@ public class TreatmentTdbRepository implements TreatmentRepository {
 
         Dataset dataset = datasetProvider.guardedDataset();
 
-        String URI = "http://lda.finki.ukim.mk/tdb#";
-
-        String model = "treatment";
-        String id = URI + "id";
-        String from = URI + "from";
-        String to = URI + "to";
-        String patientRequest = URI + "patientRequest";
-        String diagnosis = URI + "diagnosis";
-        String forPatient = URI + "forPatient";
-        String hasDoctor = URI + "hasDoctor";
+        String model = "http://example.com/treatment";
+        String subject;
+        if(newTreatment.getId() < 0 ) {
+            Random random = new Random();
+            subject = "http://example.com/treatment" + random.nextInt(10000) + 100;
+        } else{
+            subject = "http://example.com/treatment" + newTreatment.getId();
+        }
+        String from = "http://sm.example.com#from";
+        String to = "http://sm.example.com#to";
+        String patientRequest = "http://sm.example.com#patient_request";
+        String diagnosis = "http://sm.example.com#diagnosis";
+        String forPatient = "http://sm.example.com#for_patient";
+        String hasDoctor = "http://sm.example.com#has_doctor";
 
         if(newTreatment.getDiagnosis() != null){
-            StatementsFromTdb.addStatement(dataset, model, URI + newTreatment.getId(), diagnosis, newTreatment.getDiagnosis());
-            StatementsFromTdb.addStatement(dataset, model, URI + newTreatment.getId(), to, String.valueOf(newTreatment.getTo()));
+            StatementsFromTdb.addStatement(dataset, model, subject, diagnosis, newTreatment.getDiagnosis());
+            StatementsFromTdb.addStatement(dataset, model, subject, to, String.valueOf(newTreatment.getTo().getTime()));
         } else if(newTreatment.getHasDoctor() != null) {
-            StatementsFromTdb.addStatement(dataset, model, URI + newTreatment.getId(), hasDoctor, newTreatment.getHasDoctor().getEmail());
+            System.out.println("DOCTOR EMAIL: " + newTreatment.getHasDoctor().getEmail());
+            StatementsFromTdb.addStatement(dataset, model, subject, hasDoctor, "http://example.com/" + newTreatment.getHasDoctor().getEmail());
         } else {
-            StatementsFromTdb.addStatement(dataset, model, URI+"5", id, "5");
-            StatementsFromTdb.addStatement(dataset, model, URI+"5", from, newTreatment.getFrom().toString());
-            StatementsFromTdb.addStatement(dataset, model, URI+"5", patientRequest, newTreatment.getPatientRequest());
-            StatementsFromTdb.addStatement(dataset, model, URI+"5", forPatient, newTreatment.getForPatient().getEmail());
+            StatementsFromTdb.addStatement(dataset, model, subject, from, String.valueOf(newTreatment.getFrom().getTime()));
+            StatementsFromTdb.addStatement(dataset, model, subject, patientRequest, newTreatment.getPatientRequest());
+            StatementsFromTdb.addStatement(dataset, model, subject, forPatient, "http://example.com/" + newTreatment.getForPatient().getEmail());
         }
 
         return newTreatment;

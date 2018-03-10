@@ -10,6 +10,7 @@ import com.angel.lda.utils.StatementsFromTdb;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.Statement;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 import java.lang.reflect.InvocationTargetException;
@@ -20,6 +21,7 @@ import java.util.*;
  */
 @SuppressWarnings("Duplicates")
 @Repository
+@Profile("tdb")
 public class UserTdbRepository implements UserRepository {
 
     private final DatasetProvider datasetProvider;
@@ -38,33 +40,28 @@ public class UserTdbRepository implements UserRepository {
 
         Dataset dataset = datasetProvider.guardedDataset();
 
-        String URI = "http://lda.finki.ukim.mk/tdb#";
-        String model = "user";
-        String id = URI + "id";
-        String email = URI + "email";
-        String password = URI + "password";
-        String name = URI + "name";
-        String phoneNumber = URI + "phoneNumber";
-        String emergencyPhone = URI + "emergencyPhone";
-        String active = URI + "active";
-        String doctor = URI + "doctor";
-        String tdbWorksAtHospitalId = URI + "tdbWorksAtHospitalId";
-        String tdbUsesSensorSyncApplicationId = URI + "tdbUsesSensorSyncApplicationId";
+        String subject = "http://example.com/" + emailT;
+        String model = "http://example.com/user";
+        String email = "http://sm.example.com#email";
+        String password = "http://sm.example.com#password";
+        String name = "http://sm.example.com#name";
+        String phoneNumber = "http://sm.example.com#phone";
+        String emergencyPhone = "http://sm.example.com#emergency_phone";
+        String doctor = "http://sm.example.com#doctor";
+        String tdbWorksAtHospitalId = "http://sm.example.com#works_at";
+        String tdbUsesSensorSyncApplicationId = "http://sm.example.com#uses";
 
-        List<Statement> statements = StatementsFromTdb.getStatements(dataset, model, null, null, null);
+        List<Statement> statements = StatementsFromTdb.getStatements(dataset, model, subject, null, null);
 
         Map<String, String> mapping=new HashMap<>();
-        mapping.put(id, "setId");
         mapping.put(email, "setEmail");
         mapping.put(password, "setPassword");
         mapping.put(name, "setName");
         mapping.put(phoneNumber, "setPhoneNumber");
         mapping.put(emergencyPhone, "setEmergencyPhone");
-        mapping.put(active, "setActive");
         mapping.put(doctor, "setDoctor");
         mapping.put(tdbWorksAtHospitalId, "setTdbWorksAtHospitalId");
         mapping.put(tdbUsesSensorSyncApplicationId, "setTdbUsesSensorSyncApplicationId");
-
 
         Collection<User> users = StatementToObjectUtil.parseList(statements, User.class, mapping);
         Iterator<User> iterator = users.iterator();
@@ -77,8 +74,28 @@ public class UserTdbRepository implements UserRepository {
 
         while (iterator.hasNext()){
             user = iterator.next();
+
+            int hospitalId = -1;
+            if(user.getTdbWorksAtHospitalId() != null)
+                hospitalId = Integer.parseInt(String.valueOf(user.getTdbWorksAtHospitalId().charAt(user.getTdbWorksAtHospitalId().length()-1)));
+
+            Hospital hospital = null;
+            if(hospitalId != -1)
+                hospital = hospitalTdbRepository.findOne(hospitalId);
+            if(hospital != null)
+                user.setWorksAtHospital(hospital);
+
+            int ssaId = -1;
+            if(user.getTdbUsesSensorSyncApplicationId() != null)
+                ssaId = Integer.parseInt(String.valueOf(user.getTdbUsesSensorSyncApplicationId().charAt(user.getTdbUsesSensorSyncApplicationId().length()-1)));
+
+            SensorSyncApplication ssa = null;
+            if(ssaId != -1)
+               ssa  = sensorSyncApplicationTdbRepository.findOne(ssaId);
+
+            if(ssa != null)
+                user.setUsesSensorSyncApplication(ssa);
             userList.add(user);
-            System.out.println("USER" + user.getPassword());
         }
 
         return userList.get(0);
@@ -87,27 +104,22 @@ public class UserTdbRepository implements UserRepository {
     @Override
     public List<User> getDoctors() throws IllegalAccessException, InvocationTargetException, InstantiationException {
 
-        createUser(null);
-
         Dataset dataset = datasetProvider.guardedDataset();
 
-        String URI = "http://lda.finki.ukim.mk/tdb#";
-        String model = "user";
-        String id = URI + "id";
-        String email = URI + "email";
-        String password = URI + "password";
-        String name = URI + "name";
-        String phoneNumber = URI + "phoneNumber";
-        String emergencyPhone = URI + "emergencyPhone";
-        String active = URI + "active";
-        String doctor = URI + "doctor";
-        String tdbWorksAtHospitalId = URI + "tdbWorksAtHospitalId";
-        String tdbUsesSensorSyncApplicationId = URI + "tdbUsesSensorSyncApplicationId";
+        String model = "http://example.com/user";
+        String email = "http://sm.example.com#email";
+        String password = "http://sm.example.com#password";
+        String name = "http://sm.example.com#name";
+        String phoneNumber = "http://sm.example.com#phone";
+        String emergencyPhone = "http://sm.example.com#emergency_phone";
+        String active = "http://sm.example.com#active";
+        String doctor = "http://sm.example.com#doctor";
+        String tdbWorksAtHospitalId = "http://sm.example.com#works_at";
+        String tdbUsesSensorSyncApplicationId = "http://sm.example.com#uses";
 
         List<Statement> statements = StatementsFromTdb.getStatements(dataset, model, null, null, null);
 
         Map<String, String> mapping=new HashMap<>();
-        mapping.put(id, "setId");
         mapping.put(email, "setEmail");
         mapping.put(password, "setPassword");
         mapping.put(name, "setName");
@@ -130,23 +142,24 @@ public class UserTdbRepository implements UserRepository {
 
         while (iterator.hasNext()){
             user = iterator.next();
+            if(user.getDoctor() == 0)
+                continue;
 
-            if(user.getTdbUsesSensorSyncApplicationId() != null) {
-                SensorSyncApplication sensorSyncApplication = sensorSyncApplicationTdbRepository.findOne(Integer.valueOf(user.getTdbUsesSensorSyncApplicationId()));
-                if(sensorSyncApplication != null) {
-                    user.setUsesSensorSyncApplication(sensorSyncApplication);
-                }
-            }
+            int hospitalId = Integer.parseInt(String.valueOf(user.getTdbWorksAtHospitalId().charAt(user.getTdbWorksAtHospitalId().length()-1)));
 
-            if(user.getTdbWorksAtHospitalId() != null && Integer.valueOf(user.getTdbWorksAtHospitalId()) >= 1){
-                Hospital tmpHospital = hospitalTdbRepository.findOne(Integer.valueOf(user.getTdbWorksAtHospitalId()));
-                if(tmpHospital != null) {
-                    user.setWorksAtHospital(tmpHospital);
-                }
-                userList.add(user);
-            }
+            Hospital hospital = null;
+            if(hospitalId > -1)
+                hospital = hospitalTdbRepository.findOne(hospitalId);
 
-
+            if(hospital != null)
+                user.setWorksAtHospital(hospital);
+            int ssaId = Integer.parseInt(String.valueOf(user.getTdbUsesSensorSyncApplicationId().charAt(user.getTdbUsesSensorSyncApplicationId().length()-1)));
+            SensorSyncApplication ssa = null;
+            if(ssaId > -1)
+                ssa = sensorSyncApplicationTdbRepository.findOne(ssaId);
+            if(ssa != null)
+                user.setUsesSensorSyncApplication(ssa);
+            userList.add(user);
         }
 
         return userList;
@@ -154,16 +167,6 @@ public class UserTdbRepository implements UserRepository {
 
     @Override
     public User save(User user) {
-        return createUser(user);
-    }
-
-    @Override
-    public void delete(User userToBeDeleted) {
-
-    }
-
-//    Во SQL базата за корисниците примарен клуч ми е id колоната кој се генерира од базата
-    private User createUser(User user) {
         Dataset dataset = datasetProvider.guardedDataset();
 
         String URI = "http://lda.finki.ukim.mk/tdb#";
@@ -217,5 +220,4 @@ public class UserTdbRepository implements UserRepository {
 
         return user;
     }
-
 }

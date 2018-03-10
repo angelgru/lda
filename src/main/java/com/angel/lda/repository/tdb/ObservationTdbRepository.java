@@ -6,17 +6,21 @@ import com.angel.lda.model.Sensor;
 import com.angel.lda.repository.ObservationRepository;
 import com.angel.lda.utils.StatementToObjectUtil;
 import com.angel.lda.utils.StatementsFromTdb;
-import org.apache.jena.query.*;
+import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.Statement;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Created by Angel on 2/8/2018.
  */
 @Repository
+@Profile("tdb")
 public class ObservationTdbRepository implements ObservationRepository {
 
     private final DatasetProvider datasetProvider;
@@ -30,29 +34,41 @@ public class ObservationTdbRepository implements ObservationRepository {
 
     @Override
     public Observation save(Observation observation) {
-        return createObservation(observation);
+        Dataset dataset = datasetProvider.guardedDataset();
+
+        String subject;
+        Random random = new Random();
+        subject = "http://example.com/observation" + random.nextInt(100000) + 100;
+        String model = "http://example.com/observation";
+        String val = "http://sm.example.com#val";
+        String time = "http://sm.example.com#time";
+        String sensor = "http://sm.example.com#sensor";
+
+        String sensorValue = "http://example.com/sensor" + observation.getSensor().getId();
+
+        StatementsFromTdb.addStatement(dataset, model, subject, val, String.valueOf(observation.getVal()));
+        StatementsFromTdb.addStatement(dataset, model, subject, time, String.valueOf(observation.getTime().getTime()));
+        StatementsFromTdb.addStatement(dataset, model, subject, sensor, sensorValue);
+        return observation;
     }
 
     @Override
-    public Observation findOne(int observationId) {
+    public Observation findOne(int observationId) throws IllegalAccessException, InvocationTargetException, InstantiationException {
 
-        createObservation(null);
         Dataset dataset = datasetProvider.guardedDataset();
 
-        String URI = "http://lda.finki.ukim.mk/tdb#";
+        String subject = "http://example.com/observation" + observationId;
+        String model = "http://example.com/observation";
+        String val = "http://sm.example.com#val";
+        String time = "http://sm.example.com#time";
+        String sensor = "http://sm.example.com#sensor";
 
-        String model = "observation";
-
-        String id = URI + "id";
-        String val = URI + "val";
-        String time = URI + "time";
-
-        List<Statement> statements = StatementsFromTdb.getStatements(dataset, model, URI + observationId, null, null);
+        List<Statement> statements = StatementsFromTdb.getStatements(dataset, model, subject, null, null);
 
         Map<String, String> mapping = new HashMap<>();
-        mapping.put(id, "setId");
         mapping.put(val, "setVal");
         mapping.put(time, "setTime");
+        mapping.put(sensor, "setTdbSensorId");
 
         Collection<Observation> observations = StatementToObjectUtil.parseList(statements, Observation.class, mapping);
         Iterator<Observation> iterator = observations.iterator();
@@ -69,31 +85,5 @@ public class ObservationTdbRepository implements ObservationRepository {
         }
 
         return observationsList.get(0);
-    }
-
-    private Observation createObservation(Observation observation) {
-        Dataset dataset = datasetProvider.guardedDataset();
-
-        String URI = "http://lda.finki.ukim.mk/tdb#";
-
-        String model = "observation";
-
-        String id = URI + "id";
-        String val = URI + "val";
-        String time = URI + "time";
-        String sensor = URI + "sensor";
-
-        if(observation == null){
-            StatementsFromTdb.addStatement(dataset, model, URI + "1", id, "1");
-            StatementsFromTdb.addStatement(dataset, model, URI + "1", val, "55");
-            StatementsFromTdb.addStatement(dataset, model, URI + "1", time, "31122017");
-        } else {
-            StatementsFromTdb.addStatement(dataset, model, URI + "2", id, "2");
-            StatementsFromTdb.addStatement(dataset, model, URI + "2", val, String.valueOf(observation.getVal()));
-            StatementsFromTdb.addStatement(dataset, model, URI + "2", time, String.valueOf(observation.getTime()));
-            StatementsFromTdb.addStatement(dataset, model, URI + "2", sensor, String.valueOf(observation.getTime()));
-        }
-
-        return observation;
     }
 }

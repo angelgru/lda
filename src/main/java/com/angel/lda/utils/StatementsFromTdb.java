@@ -49,6 +49,11 @@ public class StatementsFromTdb {
         ds.begin(ReadWrite.WRITE);
         try{
             model = ds.getNamedModel(modelName);
+            if(model == null) {
+                ds.addNamedModel(modelName, ds.getDefaultModel());
+            }
+
+            model = ds.getNamedModel(modelName);
 
             Statement statement = model.createStatement(
                     model.createResource(subject),

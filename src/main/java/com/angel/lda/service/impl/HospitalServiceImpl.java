@@ -20,7 +20,7 @@ public class HospitalServiceImpl implements HospitalService{
     private HospitalRepository hospitalRepository;
 
     @Autowired
-    public HospitalServiceImpl(@Qualifier("hospitalTdbRepository") HospitalRepository hospitalRepository) {
+    public HospitalServiceImpl(HospitalRepository hospitalRepository) {
         this.hospitalRepository = hospitalRepository;
     }
 

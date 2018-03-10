@@ -33,6 +33,8 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
         if(!userDetails.getPassword().equals(authentication.getCredentials())) {
             throw new BadCredentialsException("Incorrect credentials!");
+        } else{
+            System.out.println("USER AUTHENTICATED");
         }
 
         // Параметрите кои ги враќаме преку UsernamePasswordAuthenticationToken се оние кои ги добиваме со Principal.getName
@@ -45,7 +47,6 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
     }
 
     private List<GrantedAuthority> getAuthorities(User aUser) {
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        return authorities;
+        return new ArrayList<>();
     }
 }

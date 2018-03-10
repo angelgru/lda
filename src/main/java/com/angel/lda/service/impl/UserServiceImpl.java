@@ -7,9 +7,7 @@ import com.angel.lda.model.User;
 import com.angel.lda.repository.SensorSyncApplicationRepository;
 import com.angel.lda.repository.UserRepository;
 import com.angel.lda.service.UserService;
-import com.angel.lda.utils.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.InvocationTargetException;
@@ -29,7 +27,7 @@ public class UserServiceImpl implements UserService {
   private SensorSyncApplicationRepository sensorSyncApplicationRepository;
 
   @Autowired
-  public UserServiceImpl(@Qualifier("userTdbRepository") UserRepository userRepository, AuthenticationService authenticationService, @Qualifier("sensorSyncApplicationTdbRepository") SensorSyncApplicationRepository sensorSyncApplicationRepository, AccessControl accessControl) {
+  public UserServiceImpl(UserRepository userRepository, AuthenticationService authenticationService,SensorSyncApplicationRepository sensorSyncApplicationRepository, AccessControl accessControl) {
     this.userRepository = userRepository;
     this.authenticationService = authenticationService;
     this.sensorSyncApplicationRepository = sensorSyncApplicationRepository;

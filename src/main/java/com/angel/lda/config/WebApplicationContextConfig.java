@@ -15,6 +15,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @EnableWebMvc
 @ComponentScan(value = {"com.angel.lda"})
 @EnableJpaRepositories(basePackages = "com.angel.lda")
+
 public class WebApplicationContextConfig extends WebMvcConfigurerAdapter{
     @Override
     public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {

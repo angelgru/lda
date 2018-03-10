@@ -9,6 +9,7 @@ import com.angel.lda.utils.StatementsFromTdb;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.Statement;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
@@ -17,6 +18,7 @@ import java.util.*;
  * Created by Angel on 1/13/2018.
  */
 @Repository
+@Profile("tdb")
 public class HospitalTdbRepository implements HospitalRepository {
 
     private final DatasetProvider datasetProvider;
@@ -30,25 +32,17 @@ public class HospitalTdbRepository implements HospitalRepository {
 
     @Override
     public List<Hospital> findAll() {
-
-        locationTdbRepository.createLocation();
-        createHospital();
-
         Dataset dataset = datasetProvider.guardedDataset();
 
-        String URI = "http://lda.finki.ukim.mk/tdb#";
-
-        String model = "hospital";
-        String id = URI + "id";
-        String name = URI + "name";
-        String networkAddress = URI + "networkAddress";
-        String location = URI + "location";
+        String model = "http://example.com/hospital";
+        String name = "http://sm.example.com#name";
+        String networkAddress = "http://sm.example.com#network_address";
+        String location = "http://sm.example.com#location";
 
         Map<String, String> mapping=new HashMap<>();
 
         List<Statement> statements = StatementsFromTdb.getStatements(dataset, model, null, null, null);
 
-        mapping.put(id, "setId");
         mapping.put(name, "setName");
         mapping.put(networkAddress, "setNetworkAddress");
         mapping.put(location, "setTdbLocationId");
@@ -57,14 +51,15 @@ public class HospitalTdbRepository implements HospitalRepository {
         Iterator<Hospital> iterator = hospitals.iterator();
 
         if(!iterator.hasNext())
-            throw new ResourceNotFound("There aren't any hospitals with the given id !!!");
+            throw new ResourceNotFound("There aren't any hospitals in the system.");
 
         List<Hospital> hospitalList = new ArrayList<>();
-        Hospital hospital = null;
+        Hospital hospital;
 
         while (iterator.hasNext()){
             hospital = iterator.next();
-            Location tmpLocation = locationTdbRepository.getLocation(hospital.getTdbLocationId());
+            int locationId = Integer.parseInt(String.valueOf(hospital.getTdbLocationId().charAt(hospital.getTdbLocationId().length()-1)));
+            Location tmpLocation = locationTdbRepository.getLocation(locationId);
             if(tmpLocation != null)
                 hospital.setLocation(tmpLocation);
             hospitalList.add(hospital);
@@ -76,24 +71,18 @@ public class HospitalTdbRepository implements HospitalRepository {
     @Override
     public Hospital findOne(int hospitalId) {
 
-        locationTdbRepository.createLocation();
-        createHospital();
-
         Dataset dataset = datasetProvider.guardedDataset();
 
-        String URI = "http://lda.finki.ukim.mk/tdb#";
-
-        String model = "hospital";
-        String id = URI + "id";
-        String name = URI + "name";
-        String networkAddress = URI + "networkAddress";
-        String location = URI + "location";
+        String subject = "http://example.com/hospital" + hospitalId;
+        String model = "http://example.com/hospital";
+        String name = "http://sm.example.com#name";
+        String networkAddress = "http://sm.example.com#network_address";
+        String location = "http://sm.example.com#location";
 
         Map<String, String> mapping=new HashMap<>();
 
-        List<Statement> statements = StatementsFromTdb.getStatements(dataset, model, URI + String.valueOf(hospitalId), null, null);
+        List<Statement> statements = StatementsFromTdb.getStatements(dataset, model, subject, null, null);
 
-        mapping.put(id, "setId");
         mapping.put(name, "setName");
         mapping.put(networkAddress, "setNetworkAddress");
         mapping.put(location, "setTdbLocationId");
@@ -105,28 +94,29 @@ public class HospitalTdbRepository implements HospitalRepository {
             throw new ResourceNotFound("There aren't any hospitals with the given id !!!");
         Hospital hospital = iterator.next();
 
-        Location tmpLocation = locationTdbRepository.getLocation(hospital.getTdbLocationId());
+        int locationId = Integer.parseInt(String.valueOf(hospital.getTdbLocationId().charAt(hospital.getTdbLocationId().length()-1)));
+        Location tmpLocation = locationTdbRepository.getLocation(locationId);
 
-        if(tmpLocation != null)
+        if(tmpLocation != null) {
             hospital.setLocation(tmpLocation);
+        }
 
         return hospital;
     }
 
-    private void createHospital() {
-        Dataset dataset = datasetProvider.guardedDataset();
-
-        String URI = "http://lda.finki.ukim.mk/tdb#";
-
-        String model = "hospital";
-        String id = URI + "id";
-        String name = URI + "name";
-        String networkAddress = URI + "networkAddress";
-        String location = URI + "location";
-
-        StatementsFromTdb.addStatement(dataset, model, URI + "1", id, "1");
-        StatementsFromTdb.addStatement(dataset, model, URI + "1", name, "ex:hospital");
-        StatementsFromTdb.addStatement(dataset, model, URI + "1", networkAddress, "127.0.0.1");
-        StatementsFromTdb.addStatement(dataset, model, URI + "1", location, "1");
-    }
+//    TO DO: Delete at the end of the project, will not need it anymore
+//    TO DO: Give proper parameters instead of literals
+//    private void createHospital(int i) {
+//        Dataset dataset = datasetProvider.guardedDataset();
+//
+//        String model = "http://example.com/hospital";
+//        String subject = "http://example.com/hospital" + i;
+//        String name = "http://sm.example.com#name";
+//        String networkAddress = "http://sm.example.com#network_address";
+//        String location = "http://sm.example.com#location";
+//
+//        StatementsFromTdb.addStatement(dataset, model, subject, name, "ex:hospital");
+//        StatementsFromTdb.addStatement(dataset, model, subject, networkAddress, "127.0.0.1");
+//        StatementsFromTdb.addStatement(dataset, model, subject, location, "http://example.com/location1");
+//    }
 }

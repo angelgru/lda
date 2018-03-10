@@ -7,9 +7,9 @@ import org.apache.jena.query.Dataset;
  */
 public interface DatasetProvider {
 
-
   Dataset create();
 
-
   Dataset guardedDataset();
+
+  Dataset guardedDataset(String graph);
 }

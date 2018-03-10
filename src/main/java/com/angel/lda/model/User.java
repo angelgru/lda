@@ -65,13 +65,18 @@ public class User {
         newUser.setPhoneNumber(user.getPhoneNumber());
         newUser.setEmergencyPhone(user.getEmergencyPhone());
         newUser.setEmail(user.getEmail());
-        newUser.setUsesSensorSyncApplication(user.getUsesSensorSyncApplication());
-        newUser.setIsDoctorForTreatments(user.getIsDoctorForTreatments());
-        newUser.setOwnsSensors(user.getOwnsSensors());
-        newUser.setUserTreatments(user.getUserTreatments());
+        if(user.getUsesSensorSyncApplication() != null)
+            newUser.setUsesSensorSyncApplication(user.getUsesSensorSyncApplication());
+        if(user.getIsDoctorForTreatments() != null)
+            newUser.setIsDoctorForTreatments(user.getIsDoctorForTreatments());
+        if(user.getOwnsSensors() != null)
+            newUser.setOwnsSensors(user.getOwnsSensors());
+        if(user.getUserTreatments() != null)
+            newUser.setUserTreatments(user.getUserTreatments());
         newUser.setActive(user.getActive());
         newUser.setDoctor(user.getDoctor());
-        newUser.setWorksAtHospital(user.getWorksAtHospital());
+        if(user.getWorksAtHospital() != null)
+            newUser.setWorksAtHospital(user.getWorksAtHospital());
         newUser.setTdbWorksAtHospitalId(user.getTdbWorksAtHospitalId());
         newUser.setTdbUsesSensorSyncApplicationId(user.getTdbUsesSensorSyncApplicationId());
         return newUser;

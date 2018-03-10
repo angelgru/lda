@@ -9,6 +9,7 @@ import com.angel.lda.utils.StatementsFromTdb;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.Statement;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
@@ -18,6 +19,7 @@ import java.util.*;
  */
 @SuppressWarnings("Duplicates")
 @Repository
+@Profile("tdb")
 public class SensorSyncApplicationTdbRepository implements SensorSyncApplicationRepository{
 
     private final DatasetProvider datasetProvider;
@@ -30,25 +32,20 @@ public class SensorSyncApplicationTdbRepository implements SensorSyncApplication
     }
 
     @Override
-    public SensorSyncApplication findOne(int idS) {
-
-        createSensorSyncApplication(null);
+    public SensorSyncApplication findOne(int sensorId) {
 
         Dataset dataset = datasetProvider.guardedDataset();
 
-        String URI = "http://lda.finki.ukim.mk/tdb#";
-        String model = "sensorSyncApplication";
-        String id = URI + "id";
-        String nameOfApplication = URI + "nameOfApplication";
-        String tdbProvidedByHospital = URI + "tdbProvidedByHospital";
+        String model = "http://example.com/ssa";
+        String subject = "http://example.com/ssa" + sensorId;
+        String nameOfApplication = "http://sm.example.com#name";
+        String tdbProvidedByHospital = "http://sm.example.com#provided_by";
 
-        List<Statement> statements = StatementsFromTdb.getStatements(dataset, model, URI + String.valueOf(idS), null, null);
+        List<Statement> statements = StatementsFromTdb.getStatements(dataset, model, subject, null, null);
 
         Map<String, String> mapping = new HashMap<>();
-        mapping.put(id, "setId");
         mapping.put(nameOfApplication, "setNameOfApplication");
         mapping.put(tdbProvidedByHospital, "setTdbProvidedByHospital");
-
 
         Collection<SensorSyncApplication> sensorSyncApplications = StatementToObjectUtil.parseList(statements, SensorSyncApplication.class, mapping);
         Iterator<SensorSyncApplication> iterator = sensorSyncApplications.iterator();
@@ -61,7 +58,8 @@ public class SensorSyncApplicationTdbRepository implements SensorSyncApplication
 
         while(iterator.hasNext()){
             sensorSyncApplication = iterator.next();
-            Hospital tmpHospital = hospitalTdbRepository.findOne(Integer.valueOf(sensorSyncApplication.getTdbProvidedByHospital()));
+            int hospitalId = Integer.parseInt(String.valueOf(sensorSyncApplication.getTdbProvidedByHospital().charAt(sensorSyncApplication.getTdbProvidedByHospital().length()-1)));
+            Hospital tmpHospital = hospitalTdbRepository.findOne(hospitalId);
             if(tmpHospital != null)
                 sensorSyncApplication.setProvidedByHospital(tmpHospital);
             sensorSyncApplicationsList.add(sensorSyncApplication);
@@ -73,23 +71,17 @@ public class SensorSyncApplicationTdbRepository implements SensorSyncApplication
     @Override
     public List<SensorSyncApplication> findAll() {
 
-        createSensorSyncApplication(null);
-
         Dataset dataset = datasetProvider.guardedDataset();
 
-        String URI = "http://lda.finki.ukim.mk/tdb#";
-        String model = "sensorSyncApplication";
-        String id = URI + "id";
-        String nameOfApplication = URI + "nameOfApplication";
-        String tdbProvidedByHospital = URI + "tdbProvidedByHospital";
+        String model = "http://example.com/ssa";
+        String nameOfApplication = "http://sm.example.com#name";
+        String tdbProvidedByHospital = "http://sm.example.com#provided_by";
 
         List<Statement> statements = StatementsFromTdb.getStatements(dataset, model, null, null, null);
 
         Map<String, String> mapping = new HashMap<>();
-        mapping.put(id, "setId");
         mapping.put(nameOfApplication, "setNameOfApplication");
         mapping.put(tdbProvidedByHospital, "setTdbProvidedByHospital");
-
 
         Collection<SensorSyncApplication> sensorSyncApplications = StatementToObjectUtil.parseList(statements, SensorSyncApplication.class, mapping);
         Iterator<SensorSyncApplication> iterator = sensorSyncApplications.iterator();
@@ -98,11 +90,12 @@ public class SensorSyncApplicationTdbRepository implements SensorSyncApplication
             throw new ResourceNotFound("No applications were found !");
 
         List<SensorSyncApplication> sensorSyncApplicationsList = new ArrayList<>();
-        SensorSyncApplication sensorSyncApplication = null;
+        SensorSyncApplication sensorSyncApplication;
 
         while(iterator.hasNext()){
             sensorSyncApplication = iterator.next();
-            Hospital tmpHospital = hospitalTdbRepository.findOne(Integer.valueOf(sensorSyncApplication.getTdbProvidedByHospital()));
+            int hospitalId = Integer.parseInt(String.valueOf(sensorSyncApplication.getTdbProvidedByHospital().charAt(sensorSyncApplication.getTdbProvidedByHospital().length()-1)));
+            Hospital tmpHospital = hospitalTdbRepository.findOne(hospitalId);
             if(tmpHospital != null)
                 sensorSyncApplication.setProvidedByHospital(tmpHospital);
             sensorSyncApplicationsList.add(sensorSyncApplication);
@@ -111,19 +104,19 @@ public class SensorSyncApplicationTdbRepository implements SensorSyncApplication
         return sensorSyncApplicationsList;
     }
 
-    private SensorSyncApplication createSensorSyncApplication(SensorSyncApplication sensorSyncApplication) {
-        Dataset dataset = datasetProvider.guardedDataset();
-
-        String URI = "http://lda.finki.ukim.mk/tdb#";
-        String model = "sensorSyncApplication";
-        String id = URI + "id";
-        String nameOfApplication = URI + "nameOfApplication";
-        String tdbProvidedByHospital = URI + "tdbProvidedByHospital";
-
-        StatementsFromTdb.addStatement(dataset, model, URI + "1", id, "1");
-        StatementsFromTdb.addStatement(dataset, model, URI + "1", nameOfApplication, "Hospital Sync App");
-        StatementsFromTdb.addStatement(dataset, model, URI + "1", tdbProvidedByHospital, "1");
-
-        return sensorSyncApplication;
-    }
+//    TO DO : Delete after completing project
+//
+//    private SensorSyncApplication createSensorSyncApplication(SensorSyncApplication sensorSyncApplication) {
+//        Dataset dataset = datasetProvider.guardedDataset();
+//
+//        String model = "http://example.com/ssa";
+//        String subject = "http://example.com/ssa" + sensorSyncApplication.getId();
+//        String nameOfApplication = "http://sm.example.com#name";
+//        String tdbProvidedByHospital = "http://sm.example.com#provided_by";
+//
+//        StatementsFromTdb.addStatement(dataset, model, subject, nameOfApplication, sensorSyncApplication.getNameOfApplication());
+//        StatementsFromTdb.addStatement(dataset, model, subject, tdbProvidedByHospital, sensorSyncApplication.getTdbProvidedByHospital());
+//
+//        return sensorSyncApplication;
+//    }
 }

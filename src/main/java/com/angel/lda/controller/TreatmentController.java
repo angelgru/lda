@@ -70,7 +70,7 @@ public class TreatmentController {
         return treatmentService.createTreatment(treatment);
     }
 
-//    Кога докторот ќе прифати treatment, поставувам дека тој treatment е земен од тој доктор  или поставуваме дијагноза
+//    Кога докторот ќе прифати treatment, го доделувам treatment-от на доктор-от или поставуваме дијагноза
 //    за treatment-от ако е проследена истата
     @RequestMapping(value = "/{treatmentId}", method = RequestMethod.PATCH, produces = MediaType.APPLICATION_JSON_VALUE)
     public Treatment updateTreatment(@RequestBody Treatment treatment, @PathVariable("treatmentId") int treatmentId, HttpServletRequest request) throws IllegalAccessException, InstantiationException, InvocationTargetException {

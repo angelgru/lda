@@ -1,5 +1,7 @@
 package com.angel.lda.utils;
 
+import org.apache.http.client.utils.DateUtils;
+import org.apache.jena.base.Sys;
 import org.apache.jena.rdf.model.Statement;
 
 import java.lang.reflect.InvocationTargetException;
@@ -42,11 +44,11 @@ public class StatementToObjectUtil {
                         } else if(method.getParameterTypes()[0].equals(double.class)) {
                             method.invoke(instance, Double.valueOf(s.getObject().toString()));
                         } else if(method.getParameterTypes()[0].equals(Date.class)) {
-                            method.invoke(instance, new SimpleDateFormat("ddMMyyyy").parse(s.getObject().toString()));
+                            Calendar calendar = Calendar.getInstance();
+                            calendar.setTimeInMillis(Long.parseLong(s.getObject().toString()));
+                            method.invoke(instance, calendar.getTime());
                         }
                     } catch (IllegalAccessException | InvocationTargetException e) {
-                        e.printStackTrace();
-                    } catch (ParseException e) {
                         e.printStackTrace();
                     }
                 }

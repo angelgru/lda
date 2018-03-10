@@ -6,7 +6,6 @@ import com.angel.lda.model.User;
 import com.angel.lda.repository.SensorRepository;
 import com.angel.lda.service.SensorService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.InvocationTargetException;
@@ -22,7 +21,7 @@ public class SensorServiceImpl implements SensorService {
     private AuthenticationService authenticationService;
 
     @Autowired
-    public SensorServiceImpl(@Qualifier("sensorTdbRepository") SensorRepository sensorRepository, AuthenticationService authenticationService) {
+    public SensorServiceImpl(SensorRepository sensorRepository, AuthenticationService authenticationService) {
         this.sensorRepository = sensorRepository;
         this.authenticationService = authenticationService;
     }
@@ -30,19 +29,20 @@ public class SensorServiceImpl implements SensorService {
     @Override
     public Sensor createSensor(Sensor sensor) throws IllegalAccessException, InvocationTargetException, InstantiationException {
         User patient = authenticationService.getAuthenticatedUser();
-        if(patient == null){
-            System.out.println("NE E NULL");
+        if(patient != null){
+            sensor.setOwner(patient);
+            sensor.setId(-1);
+            sensorRepository.save(sensor);
         }
-        sensor.setOwner(patient);
-        sensorRepository.save(sensor);
         return sensor;
     }
 
     @Override
     public Sensor updateSensor(Sensor sensor, int sensorId) throws IllegalAccessException, InvocationTargetException, InstantiationException {
-        Sensor updateSensor = Sensor.copy(sensorRepository.findOne(sensorId));
+        Sensor updateSensor = sensorRepository.findOne(sensorId);
 
-        if(updateSensor.getOwner().equals(authenticationService.getAuthenticatedUser())){
+        if(updateSensor.getOwner().getEmail().equals(authenticationService.getAuthenticatedUser().getEmail())){
+            updateSensor.setId(sensorId);
             if(sensor.getRegularFrom() != 0)
                 updateSensor.setRegularFrom(sensor.getRegularFrom());
             if(sensor.getRegularTo() != 0)

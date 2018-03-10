@@ -7,11 +7,9 @@ import com.angel.lda.exceptions.UserValuesExposed;
 import com.angel.lda.model.Treatment;
 import com.angel.lda.model.User;
 import com.angel.lda.repository.TreatmentRepository;
-import com.angel.lda.repository.UserRepository;
 import com.angel.lda.service.TreatmentService;
 import com.angel.lda.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -29,15 +27,13 @@ import java.util.List;
 public class TreatmentServiceImpl implements TreatmentService{
 
     private TreatmentRepository treatmentRepository;
-    private UserRepository userRepository;
     private AccessControl accessControl;
     private AuthenticationService authenticationService;
     private UserService userService;
 
     @Autowired
-    public TreatmentServiceImpl(@Qualifier("treatmentTdbRepository") TreatmentRepository treatmentRepository, @Qualifier("userTdbRepository") UserRepository userRepository, AccessControl accessControl, AuthenticationService authenticationService, UserService userService) {
+    public TreatmentServiceImpl(TreatmentRepository treatmentRepository, AccessControl accessControl, AuthenticationService authenticationService, UserService userService) {
         this.treatmentRepository = treatmentRepository;
-        this.userRepository = userRepository;
         this.accessControl = accessControl;
         this.authenticationService = authenticationService;
         this.userService = userService;
@@ -48,7 +44,6 @@ public class TreatmentServiceImpl implements TreatmentService{
         User currentlyLoggedInUser = authenticationService.getAuthenticatedUser();
         if(accessControl.canTakeTreatments(currentlyLoggedInUser)) {
             List<Treatment> treatments = treatmentRepository.getAllNonTakenTreatments();
-            treatments = getTreatmentsReady(treatments);
             return treatments;
         }
         throw new ResourceNotAllowed("Only doctors can access the treatments!");
@@ -57,13 +52,13 @@ public class TreatmentServiceImpl implements TreatmentService{
     @Override
     public List<Treatment> getAllTreatmentsAcceptedByCurrentlyLoggedInDoctor() throws IllegalAccessException, InvocationTargetException, InstantiationException {
         List<Treatment> treatments = treatmentRepository.getAllTreatmentsAcceptedByCurrentlyLoggedInDoctor(authenticationService.getAuthenticatedUser());
-        return getTreatmentsReady(treatments);
+        return treatments;
     }
 
     @Override
     public List<Treatment> getCompletedTreatmentsAcceptedByCurrentlyLoggedInDoctor() throws IllegalAccessException, InvocationTargetException, InstantiationException {
         List<Treatment> treatments = treatmentRepository.getCompletedTreatmentsAcceptedByCurrentlyLoggedInDoctor(authenticationService.getAuthenticatedUser());
-        return getTreatmentsReady(treatments);
+        return treatments;
     }
 
     @Override
@@ -99,6 +94,7 @@ public class TreatmentServiceImpl implements TreatmentService{
         Treatment newTreatment = new Treatment();
         newTreatment.setPatientRequest(treatment.getPatientRequest());
         newTreatment.setFrom(new Date());
+        newTreatment.setId(-1);
         User patient = authenticationService.getAuthenticatedUser();
         newTreatment.setForPatient(patient);
 
@@ -118,15 +114,8 @@ public class TreatmentServiceImpl implements TreatmentService{
             throw new ResourceNotAllowed("Only doctors can update treatments!!!");
         }
 
-        if(treatmentRepository.findOne(treatmentId) == null) {
-            System.out.println("TREATMENT FOUND");
-        }
-
-        Treatment updateTreatment = Treatment.copy(treatmentRepository.findOne(treatmentId));
-
-        if(updateTreatment.getHasDoctor() == null) {
-            System.out.println("NULL");
-        }
+        Treatment updateTreatment = treatmentRepository.findOne(treatmentId);
+        updateTreatment.setId(treatmentId);
 
         if(updateTreatment == null) {
             throw new ResourceNotFound("Treatment not found!!!");

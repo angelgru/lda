@@ -19,12 +19,10 @@ import java.util.List;
 public class UserController {
 
     private UserService userService;
-    private UserTdbRepository userTdbRepository;
 
     @Autowired
-    public UserController(UserService userService, UserTdbRepository userTdbRepository) {
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.userTdbRepository = userTdbRepository;
     }
 
     @RequestMapping(value = "/create", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -45,10 +43,5 @@ public class UserController {
     @RequestMapping(value = "/doctors", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public List<User> getDoctors() throws IllegalAccessException, InvocationTargetException, InstantiationException {
         return userService.getDoctors();
-    }
-
-    @RequestMapping(value = "/{email}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public User getUser(@PathVariable("email") String email) throws IllegalAccessException, InstantiationException, InvocationTargetException {
-        return userTdbRepository.findByEmail(email);
     }
 }

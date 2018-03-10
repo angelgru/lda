@@ -3,9 +3,11 @@ package com.angel.lda.repository.tdb;
 import com.angel.lda.model.Location;
 import com.angel.lda.utils.StatementToObjectUtil;
 import com.angel.lda.utils.StatementsFromTdb;
+import org.apache.jena.base.Sys;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.Statement;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
@@ -15,6 +17,7 @@ import java.util.*;
  */
 
 @Repository
+@Profile("tdb")
 public class LocationTdbRepository {
 
     private final DatasetProvider datasetProvider;
@@ -24,50 +27,46 @@ public class LocationTdbRepository {
         this.datasetProvider = datasetProvider;
     }
 
-    public Location getLocation(String id) {
+    public Location getLocation(int id) {
+
+        String subject = "http://example.com/location" + id;
+        String model = "http://example.com/location";
+        String locationLatitude = "http://sm.example.com#latitude";
+        String locationLongitude = "http://sm.example.com#longitude";
 
         Dataset dataset = datasetProvider.guardedDataset();
         Map<String, String> mapping=new HashMap<>();
 
-        String model = "location";
-        String URI = "http://lda.finki.ukim.mk/tdb#";
-        String locationId = URI + "id";
-        String locationLatitude = URI + "latitude";
-        String locationLongitude = URI + "longitude";
-
-        mapping.put(locationId, "setId");
         mapping.put(locationLatitude, "setLat");
         mapping.put(locationLongitude, "setLongitude");
 
 //        mapping ги содржи setter-ите / методите за поставување на вредност за објектот
 //        statements листата се состои од сите вратени резултати од тдб базата во вид на subject predicate object
 
-        List<Statement> statements = StatementsFromTdb.getStatements(dataset, model, URI + id, null, null);
-
+        List<Statement> statements = StatementsFromTdb.getStatements(dataset, model, subject, null, null);
 
         Collection<Location> locations = StatementToObjectUtil.parseList(statements, Location.class, mapping);
-        System.out.println("Statements number " + locations.size());
 
         Iterator<Location> iterator = locations.iterator();
-
         if(!iterator.hasNext())
             return null;
-        return iterator.next();
+        Location location = iterator.next();
+        System.out.println("LOCATION:" + location.getLat());
+        return location;
     }
 
-    public void createLocation(){
+    //    TO DO: Give proper parameters instead of literals
+    public void createLocation(int locationId){
         Dataset dataset = datasetProvider.guardedDataset();
 
-        String URI = "http://lda.finki.ukim.mk/tdb#";
+        String subject = "http://example.com/location" + locationId;
+        String model = "http://example.com/location";
+        String locationLatitude = "http://sm.example.com#latitude";
+        String locationLongitude = "http://sm.example.com#longitude";
+        String type = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 
-        String locationModel = "location";
-
-        String locationId = URI + "id";
-        String locationLatitude = URI + "latitude";
-        String locationLongitude = URI + "longitude";
-
-        StatementsFromTdb.addStatement(dataset, locationModel, URI + "1", locationId, "1");
-        StatementsFromTdb.addStatement(dataset, locationModel, URI + "1", locationLatitude, "55.48");
-        StatementsFromTdb.addStatement(dataset, locationModel, URI + "1", locationLongitude, "127");
+        StatementsFromTdb.addStatement(dataset, model, subject, type, "http://sm.example.com#Location");
+        StatementsFromTdb.addStatement(dataset, model, subject, locationLatitude, "55.48");
+        StatementsFromTdb.addStatement(dataset, model, subject, locationLongitude, "127");
     }
 }

@@ -18,7 +18,7 @@ public class Observation {
     private int id;
     @Column(name = "value")
     @NotNull
-    private int val;
+    private String val;
     @Column(name = "time")
     @Temporal(TemporalType.TIMESTAMP)
     @NotNull
@@ -49,11 +49,11 @@ public class Observation {
         this.sensor = sensor;
     }
 
-    public int getVal() {
+    public String getVal() {
         return val;
     }
 
-    public void setVal(int val) {
+    public void setVal(String val) {
         this.val = val;
     }
 
