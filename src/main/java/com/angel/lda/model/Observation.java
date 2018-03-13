@@ -18,7 +18,7 @@ public class Observation {
     private int id;
     @Column(name = "value")
     @NotNull
-    private String val;
+    private int val;
     @Column(name = "time")
     @Temporal(TemporalType.TIMESTAMP)
     @NotNull
@@ -26,9 +26,6 @@ public class Observation {
     @JsonIgnore
     @ManyToOne
     private Sensor sensor;
-
-    @JsonIgnore
-    private String tdbSensorId;
 
     public Observation() {
     }
@@ -49,11 +46,11 @@ public class Observation {
         this.sensor = sensor;
     }
 
-    public String getVal() {
+    public int getVal() {
         return val;
     }
 
-    public void setVal(String val) {
+    public void setVal(int val) {
         this.val = val;
     }
 
@@ -65,11 +62,6 @@ public class Observation {
         this.time = time;
     }
 
-    public String getTdbSensorId() {
-        return tdbSensorId;
-    }
 
-    public void setTdbSensorId(String tdbSensorId) {
-        this.tdbSensorId = tdbSensorId;
-    }
+
 }

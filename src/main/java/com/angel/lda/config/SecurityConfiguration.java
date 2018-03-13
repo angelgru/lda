@@ -35,8 +35,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.
                 authorizeRequests().
-                antMatchers("/api/user/create", "/api/hospital/", "/api/hospital/{$id}",
-                        "/api/sensorsyncapplication/", "/api/sensorsyncapplication/{$id}").
+                antMatchers("/api/user/create").
                 permitAll().
                 anyRequest().
                 authenticated().

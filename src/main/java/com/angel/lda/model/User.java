@@ -48,38 +48,7 @@ public class User {
     @OneToMany(mappedBy = "hasDoctor", cascade = CascadeType.ALL)
     private Set<Treatment> isDoctorForTreatments;
 
-    @JsonIgnore
-    private String tdbWorksAtHospitalId;
-
-    @JsonIgnore
-    private String tdbUsesSensorSyncApplicationId;
-
     public User() {
-    }
-
-    public static User copy(User user){
-        User newUser = new User();
-        newUser.setId(user.getId());
-        newUser.setPassword(user.getPassword());
-        newUser.setName(user.getName());
-        newUser.setPhoneNumber(user.getPhoneNumber());
-        newUser.setEmergencyPhone(user.getEmergencyPhone());
-        newUser.setEmail(user.getEmail());
-        if(user.getUsesSensorSyncApplication() != null)
-            newUser.setUsesSensorSyncApplication(user.getUsesSensorSyncApplication());
-        if(user.getIsDoctorForTreatments() != null)
-            newUser.setIsDoctorForTreatments(user.getIsDoctorForTreatments());
-        if(user.getOwnsSensors() != null)
-            newUser.setOwnsSensors(user.getOwnsSensors());
-        if(user.getUserTreatments() != null)
-            newUser.setUserTreatments(user.getUserTreatments());
-        newUser.setActive(user.getActive());
-        newUser.setDoctor(user.getDoctor());
-        if(user.getWorksAtHospital() != null)
-            newUser.setWorksAtHospital(user.getWorksAtHospital());
-        newUser.setTdbWorksAtHospitalId(user.getTdbWorksAtHospitalId());
-        newUser.setTdbUsesSensorSyncApplicationId(user.getTdbUsesSensorSyncApplicationId());
-        return newUser;
     }
 
     public int getId() {
@@ -184,21 +153,5 @@ public class User {
 
     public void setIsDoctorForTreatments(Set<Treatment> isDoctorForTreatments) {
         this.isDoctorForTreatments = isDoctorForTreatments;
-    }
-
-    public String getTdbWorksAtHospitalId() {
-        return tdbWorksAtHospitalId;
-    }
-
-    public void setTdbWorksAtHospitalId(String tdbWorksAtHospitalId) {
-        this.tdbWorksAtHospitalId = tdbWorksAtHospitalId;
-    }
-
-    public String getTdbUsesSensorSyncApplicationId() {
-        return tdbUsesSensorSyncApplicationId;
-    }
-
-    public void setTdbUsesSensorSyncApplicationId(String tdbUsesSensorSyncApplicationId) {
-        this.tdbUsesSensorSyncApplicationId = tdbUsesSensorSyncApplicationId;
     }
 }

@@ -4,10 +4,10 @@ import com.angel.lda.model.Hospital;
 import com.angel.lda.repository.HospitalRepository;
 import com.angel.lda.service.HospitalService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.InvocationTargetException;
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.List;
 
 /**
@@ -25,12 +25,12 @@ public class HospitalServiceImpl implements HospitalService{
     }
 
     @Override
-    public List<Hospital> getAllHospitals() throws IllegalAccessException, InvocationTargetException, InstantiationException {
+    public List<Hospital> getAllHospitals() throws MalformedURLException {
         return hospitalRepository.findAll();
     }
 
     @Override
-    public Hospital findHospitalById(int hospitalId) throws IllegalAccessException, InvocationTargetException, InstantiationException {
+    public Hospital findHospitalById(int hospitalId) throws IOException {
         return hospitalRepository.findOne(hospitalId);
     }
 }

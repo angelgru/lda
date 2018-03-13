@@ -2,7 +2,6 @@ package com.angel.lda.service;
 
 import com.angel.lda.model.User;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 /**
@@ -12,11 +11,13 @@ public interface UserService {
 
     public User createUser(User user);
 
-    public User updateUser(User user) throws IllegalAccessException, InvocationTargetException, InstantiationException;
+    public User updateUser(User user, String email);
 
-    public void setSensorApplication(int sensorApplicationId) throws IllegalAccessException, InvocationTargetException, InstantiationException;
+    public void deleteUser(String email);
 
-    public List<User> getDoctors() throws IllegalAccessException, InstantiationException, InvocationTargetException;
+    public User findByEmail(String email);
 
-    public User cleanUser(User user);
+    public void setSensorApplication(int sensorApplicationId, String email);
+
+    public List<User> getDoctors();
 }

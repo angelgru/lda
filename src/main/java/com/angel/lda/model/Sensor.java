@@ -34,22 +34,7 @@ public class Sensor {
     @OneToMany(mappedBy = "sensor", cascade = CascadeType.ALL)
     private Set<Observation> usedInObservations;
 
-    @JsonIgnore
-    private String tdbUserId;
-
     public Sensor() {
-    }
-
-    public static Sensor copy(Sensor sensor) {
-        Sensor newSensor = new Sensor();
-        newSensor.setUnit(sensor.getUnit());
-        newSensor.setType(sensor.getType());
-        newSensor.setRegularTo(sensor.getRegularTo());
-        newSensor.setRegularFrom(sensor.getRegularFrom());
-        newSensor.setOwner(sensor.getOwner());
-        newSensor.setId(sensor.getId());
-        newSensor.setUsedInObservations(sensor.getUsedInObservations());
-        return newSensor;
     }
 
     public int getId() {
@@ -106,13 +91,5 @@ public class Sensor {
 
     public void setUsedInObservations(Set<Observation> usedInObservations) {
         this.usedInObservations = usedInObservations;
-    }
-
-    public String getTdbUserId() {
-        return tdbUserId;
-    }
-
-    public void setTdbUserId(String tdbUserId) {
-        this.tdbUserId = tdbUserId;
     }
 }

@@ -7,7 +7,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.lang.reflect.InvocationTargetException;
 import java.security.Principal;
 import java.util.List;
 
@@ -27,12 +26,17 @@ public class SensorController {
     }
 
     @RequestMapping(value = "/", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Sensor createSensor(@RequestBody Sensor sensor) throws IllegalAccessException, InstantiationException, InvocationTargetException {
-        return sensorService.createSensor(sensor);
+    public Sensor createSensor(@RequestBody Sensor sensor, Principal principal) {
+        return sensorService.createSensor(sensor, principal.getName());
     }
 
     @RequestMapping(value = "/{sensorId}", method = RequestMethod.PATCH, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Sensor updateSensor(@RequestBody Sensor sensor, @PathVariable("sensorId") int sensorId) throws IllegalAccessException, InstantiationException, InvocationTargetException {
+    public Sensor updateSensor(@RequestBody Sensor sensor, @PathVariable("sensorId") int sensorId) {
         return sensorService.updateSensor(sensor, sensorId);
+    }
+
+    @RequestMapping(value = "/{sensorId}", method = RequestMethod.DELETE)
+    public void deleteSensor(@PathVariable("sensorId") int sensorId) {
+        sensorService.deleteSensor(sensorId);
     }
 }

@@ -32,9 +32,6 @@ public class Hospital {
     @OneToMany(mappedBy = "worksAtHospital", cascade = CascadeType.ALL)
     private Set<User> hasEmployeesUsers;
 
-    @JsonIgnore
-    private String tdbLocationId;
-
     public Hospital() {
     }
 
@@ -84,13 +81,5 @@ public class Hospital {
 
     public void setHasEmployeesUsers(Set<User> hasEmployeesUsers) {
         this.hasEmployeesUsers = hasEmployeesUsers;
-    }
-
-    public String getTdbLocationId() {
-        return tdbLocationId;
-    }
-
-    public void setTdbLocationId(String tdbLocationId) {
-        this.tdbLocationId = tdbLocationId;
     }
 }
