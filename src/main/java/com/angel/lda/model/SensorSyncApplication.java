@@ -28,6 +28,9 @@ public class SensorSyncApplication {
     @OneToMany(mappedBy = "usesSensorSyncApplication", cascade = CascadeType.ALL)
     private Set<User> usedByUsers;
 
+    @JsonIgnore
+    private String tdbProvidedByHospital;
+
     public SensorSyncApplication() {
     }
 
@@ -61,5 +64,13 @@ public class SensorSyncApplication {
 
     public void setUsedByUsers(Set<User> usedByUsers) {
         this.usedByUsers = usedByUsers;
+    }
+
+    public String getTdbProvidedByHospital() {
+        return tdbProvidedByHospital;
+    }
+
+    public void setTdbProvidedByHospital(String tdbProvidedByHospital) {
+        this.tdbProvidedByHospital = tdbProvidedByHospital;
     }
 }

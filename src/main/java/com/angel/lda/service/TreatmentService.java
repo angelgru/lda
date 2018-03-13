@@ -4,7 +4,9 @@ import com.angel.lda.model.Treatment;
 import com.angel.lda.model.User;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
+import java.text.ParseException;
 import java.util.List;
 
 /**
@@ -12,15 +14,15 @@ import java.util.List;
  */
 public interface TreatmentService {
 
-    public List<Treatment> getAllNonTakenTreatments() throws IOException;
+    public List<Treatment> getAllNonTakenTreatments() throws IOException, IllegalAccessException, InvocationTargetException, InstantiationException, ParseException;
 
-    public List<Treatment> getAllTreatmentsAcceptedByCurrentlyLoggedInDoctor();
+    public List<Treatment> getAllTreatmentsAcceptedByCurrentlyLoggedInDoctor() throws IllegalAccessException, InvocationTargetException, InstantiationException;
 
-    public List<Treatment> getCompletedTreatmentsAcceptedByCurrentlyLoggedInDoctor();
+    public List<Treatment> getCompletedTreatmentsAcceptedByCurrentlyLoggedInDoctor() throws IllegalAccessException, InvocationTargetException, InstantiationException;
 
-    public Treatment getTreatment(int id);
+    public Treatment getTreatment(int id) throws IllegalAccessException, InvocationTargetException, InstantiationException;
 
-    public Treatment createTreatment(Treatment treatment);
+    public List<Treatment> createTreatment(Treatment treatment) throws IllegalAccessException, InvocationTargetException, InstantiationException;
 
-    public Treatment updateTreatment(Treatment treatment, int treatmentId, String doctorIPAddress);
+    public Treatment updateTreatment(Treatment treatment, int treatmentId, String doctorIPAddress) throws IllegalAccessException, InvocationTargetException, InstantiationException;
 }

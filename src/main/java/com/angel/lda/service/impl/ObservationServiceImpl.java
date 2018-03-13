@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Date;
 
 /**
@@ -22,13 +23,13 @@ public class ObservationServiceImpl implements ObservationService{
     private SensorRepository sensorRepository;
 
     @Autowired
-    public ObservationServiceImpl(@Qualifier("observationJpaRepository") ObservationRepository observationRepository, @Qualifier("sensorJpaRepository") SensorRepository sensorRepository) {
+    public ObservationServiceImpl(ObservationRepository observationRepository, SensorRepository sensorRepository) {
         this.observationRepository = observationRepository;
         this.sensorRepository = sensorRepository;
     }
 
     @Override
-    public Observation createObservation(Observation observation, int sensorId) {
+    public Observation createObservation(Observation observation, int sensorId) throws IllegalAccessException, InvocationTargetException, InstantiationException {
         Sensor sensor = sensorRepository.findOne(sensorId);
         observation.setTime(new Date());
         observation.setSensor(sensor);

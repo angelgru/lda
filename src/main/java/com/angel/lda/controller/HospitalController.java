@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 /**
@@ -27,12 +29,12 @@ public class HospitalController {
     }
 
     @RequestMapping(value = "/", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<Hospital> getAllHospitals() {
+    public List<Hospital> getAllHospitals() throws IllegalAccessException, InstantiationException, InvocationTargetException, IOException {
         return hospitalService.getAllHospitals();
     }
 
     @RequestMapping(value = "/{hospitalId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Hospital findHospitalById(@PathVariable("hospitalId") int hospitalId) {
+    public Hospital findHospitalById(@PathVariable("hospitalId") int hospitalId) throws IllegalAccessException, InstantiationException, InvocationTargetException {
         return hospitalService.findHospitalById(hospitalId);
     }
 }

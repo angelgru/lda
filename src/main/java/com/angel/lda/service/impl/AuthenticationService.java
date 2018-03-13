@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Optional;
 
 /**
@@ -19,11 +20,11 @@ public class AuthenticationService {
 
 
   @Autowired
-  public AuthenticationService(@Qualifier("userJpaRepository") UserRepository repository) {
+  public AuthenticationService(UserRepository repository) {
     this.repository = repository;
   }
 
-  public User getAuthenticatedUser() {
+  public User getAuthenticatedUser() throws IllegalAccessException, InstantiationException, InvocationTargetException {
     Optional<String> loginOptional = SecurityUtils.getCurrentUserLogin();
 
     return this.repository.findByEmail(loginOptional

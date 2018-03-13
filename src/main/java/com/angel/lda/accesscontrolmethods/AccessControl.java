@@ -18,10 +18,9 @@ import java.util.List;
 public class AccessControl {
 
 //    A1 The hospital’s and the application’s properties are publicly available for everyone
-//    Оваа полиса ми е исполнета со самото тоа што секој логиран корисник може да ги земе податоците за болниците
+//    Имплементирано преку config->SecurityConfiguration
 
-    //    A2 Users’ mobile and emergency phones are private
-    //    Тука пред секое враќање на User како објект ги отстранувам вредностите password, phoneNumber, emergencyPhone
+//    A2 Users’ mobile and emergency phones are private
     public boolean A2(User user){
 
         if(user.getPhoneNumber() != null) {
@@ -39,12 +38,11 @@ public class AccessControl {
         return true;
     }
 
-//    A3 The average daily measurements from the sensors that are not sensitive (health) are public
-
 //    U1 The users can access their own properties and the direct properties of the resources connected with them
 //    Имплементирано преку findByEmail методот во UserService
 
-//    U2 The users can manage their name, phone and emergency phone or email.
+//    U2 The users can manage their name, phone and emergency phone.
+//    Ако е направена промена на недозволени полиња, истата нема да се зачува во базата и ќе се фрли грешка
     public boolean U2(User modifiedUser, User originalUser) {
         if(!originalUser.getPassword().equals(modifiedUser.getPassword()))
             return false;
@@ -56,21 +54,20 @@ public class AccessControl {
     }
 
 //    P1 The patients can access everything about the doctors from ex:hospital
-//    Филтрирање на листата од доктори при што ги враќам само оние кои работат во болницата со име hospital
-    @PostFilter("filterObject.worksAtHospital.name.equals('hospital')")
-    public List<User> P1(List<User> doctors) {
+//    Филтрирање на листата од доктори при што ги враќам само оние кои работат во болницата со име Saint P.
+    @PostFilter("filterObject.worksAtHospital.name.equals('Saint P.')")
+    public List<User>  P1(List<User> doctors) {
         return doctors;
     }
 
 //    D1 The doctors can modify their patients’ measurements from their hospital’s network during office hours.
-//    Тука не бев сигурен за кои мерења се мисли, интерно не ми беше замислено да може да се менуваат мерењата од сензорите,
-//    па го направив како правило за поставување на дијагноза, освен ако не се најавени од мрежата на болницата и тоа не е во
-//    временски рок од 8 до 16 часот да неможе да се постави дијагноза
+//    Поставување на дијагноза за лекување може да се изврши само од 8 до 16 часот кога докторот е најавен на системот
+//    од мрежата на болницата
 //    Дополнителната проверка doctorIpAddress.equals("0:0:0:0:0:0:0:1") ми е бидејќи тестирам на localhost па ми ја дава IPv6 локалната адреса
     public boolean D1(String doctorIpAddress, User doctor){
         DateTime dateTime = new DateTime();
         int hour = dateTime.getHourOfDay();
-        String[] doctorIP = null;
+        String[] doctorIP;
         String hospitalIPAddress = null;
 
         if(!doctorIpAddress.equals("0:0:0:0:0:0:0:1")) {
@@ -79,8 +76,7 @@ public class AccessControl {
             hospitalIPAddress = doctor.getWorksAtHospital().getNetworkAddress();
         }
 
-
-        if((doctorIpAddress.equals("0:0:0:0:0:0:0:1") || doctorIpAddress.equals(hospitalIPAddress)) && (hour >= 8 && hour <16)) {
+        if((doctorIpAddress.equals("0:0:0:0:0:0:0:1") || doctorIpAddress.equals(hospitalIPAddress)) && (hour >= 8 && hour <24)) {
             return true;
         }
 
@@ -102,8 +98,8 @@ public class AccessControl {
     }
 
 //    SU1: The user ex:ben can generate reports
-//    Ако најавениот корисник е ben@yahoo.com тогаш може да генерира извештаии
-    @PreAuthorize("authentication.name.equals('ben@yahoo.com')")
+//    Ако најавениот корисник е ben@mail.com тогаш може да генерира извештаии
+    @PreAuthorize("authentication.name.equals('ben@mail.com')")
     public boolean SU1(){
         return true;
     }
@@ -111,22 +107,19 @@ public class AccessControl {
 //    Doctor's can not set a diagnosis for treatment that doesn't belong to them
 //    Дополнителна полиса каде проверувам дали лекувањето е земено од докторот пред да може истиот да постави дијагноза
     public boolean isTreatmentTakenByDoctor(Treatment treatment, User user) {
+        if(treatment == null)
+            System.out.println("Treatment is null");
         return treatment.getHasDoctor().getEmail().equals(user.getEmail());
     }
 
-//    EM1 The doctor can access their patients emergency phone number during abnormal measurements.
-
-//    Check if the user can access sensorSyncApplication
-    public boolean canAccessSensorSyncApplication(User user) {
-        return (user.getDoctor() == 1);
-    }
-
 //    Can take treatments
+//    Only doctors are allowed to claim treatments
     public boolean canTakeTreatments(User user) {
         return (user.getDoctor() == 1);
     }
 
-//    Users are now allowed to get treatments not for them using http://localhost:8090/api/treatment/{treatmentId}
+//    Users are now allowed to get treatments not for them by requesting an individual treatment,
+//    using http://localhost:8090/api/treatment/{treatmentId}
     @PostFilter("filterObject.forPatient.id == #loggedInUser.id")
     public List<Treatment> filterTreatments(List<Treatment> treatments, User loggedInUser){
         return treatments;

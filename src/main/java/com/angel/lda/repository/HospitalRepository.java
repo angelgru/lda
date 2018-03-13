@@ -3,6 +3,8 @@ package com.angel.lda.repository;
 import com.angel.lda.model.Hospital;
 import org.springframework.stereotype.Repository;
 
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 /**
@@ -12,8 +14,8 @@ import java.util.List;
 @Repository
 public interface HospitalRepository {
 
-  List<Hospital> findAll();
+  List<Hospital> findAll() throws IllegalAccessException, InstantiationException, InvocationTargetException, IOException;
 
-  Hospital findOne(int hospitalId);
+  Hospital findOne(int hospitalId) throws IllegalAccessException, InstantiationException, InvocationTargetException;
 
 }

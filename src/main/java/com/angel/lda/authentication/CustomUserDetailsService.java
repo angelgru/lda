@@ -9,6 +9,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.InvocationTargetException;
+
 /**
  * Created by Angel on 12/28/2017.
  */
@@ -19,20 +21,24 @@ public class CustomUserDetailsService implements UserDetailsService {
     private UserRepository userRepository;
 
     @Autowired
-    public CustomUserDetailsService(@Qualifier("userJpaRepository") UserRepository userRepository) {
+    public CustomUserDetailsService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        User user = userRepository.findByEmail(username);
+        User user = null;
+        try {
+            user = userRepository.findByEmail(username);
+        } catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {
+            e.printStackTrace();
+        }
 
         if(user == null) {
             throw new UsernameNotFoundException("Username not found!");
         }
 
-        CustomUserDetails customUserDetails = new CustomUserDetails(user);
-        return customUserDetails;
+        return new CustomUserDetails(user);
     }
 }

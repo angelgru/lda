@@ -3,6 +3,7 @@ package com.angel.lda.repository.tdb;
 import org.apache.jena.query.ARQ;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
+import org.apache.jena.rdf.model.Model;
 import org.apache.jena.tdb.TDB;
 import org.apache.jena.tdb.TDBFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,9 +32,10 @@ public class DatasetProviderImpl implements DatasetProvider {
   public Dataset guardedDataset() {
     if (guardedDataset == null) {
       guardedDataset = TDBFactory.createDataset(environment.getProperty("dataset.location-path"));
-//      guardedDataset.asDatasetGraph().getContext().set(TDB.symUnionDefaultGraph, true);
+      guardedDataset.asDatasetGraph().getContext().set(TDB.symUnionDefaultGraph, true);
       guardedDataset.asDatasetGraph().getContext().set(ARQ.optFilterImplicitJoin, false);
     }
     return guardedDataset;
   }
+
 }

@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 /**
@@ -19,17 +21,17 @@ public class HospitalServiceImpl implements HospitalService{
     private HospitalRepository hospitalRepository;
 
     @Autowired
-    public HospitalServiceImpl(@Qualifier("hospitalTdbRepository") HospitalRepository hospitalRepository) {
+    public HospitalServiceImpl(HospitalRepository hospitalRepository) {
         this.hospitalRepository = hospitalRepository;
     }
 
     @Override
-    public List<Hospital> getAllHospitals() {
+    public List<Hospital> getAllHospitals() throws IllegalAccessException, InvocationTargetException, InstantiationException, IOException {
         return hospitalRepository.findAll();
     }
 
     @Override
-    public Hospital findHospitalById(int hospitalId) {
+    public Hospital findHospitalById(int hospitalId) throws IllegalAccessException, InvocationTargetException, InstantiationException {
         return hospitalRepository.findOne(hospitalId);
     }
 }
