@@ -1,0 +1,12 @@
+@prefix ex:    <http://example.com/> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix sm:    <http://sm.example.com#> .
+@prefix sp:    <http://spin.com#> .
+@prefix int:   <http://int.example.com#> .
+
+ex:hospital {
+    ex:newby    a                   sm:User ;
+                sm:emergency_phone  "075 123 456" ;
+                sm:uses             ex:ssa .
+}

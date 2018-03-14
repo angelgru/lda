@@ -1,0 +1,78 @@
+<http://example.com/hospital1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sm.example.com#Hospital> <http://example.com/hospital>.
+<http://example.com/hospital1> <http://sm.example.com#name> 'Saint P.' <http://example.com/hospital>.
+<http://example.com/hospital1> <http://sm.example.com#network_address> '192.168.100.0/24' <http://example.com/hospital>.
+<http://example.com/hospital1> <http://sm.example.com#location> <http://example.com/location1> <http://example.com/hospital>.
+
+<http://example.com/location1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sm.example.com#Location> <http://example.com/location>.
+<http://example.com/location1> <http://sm.example.com#latitude> "42.004" <http://example.com/location>.
+<http://example.com/location1> <http://sm.example.com#longitude> "21.409" <http://example.com/location>.
+
+<http://example.com/ssa1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sm.example.com#SensorSyncApplicaton> <http://example.com/ssa>.
+<http://example.com/ssa1> <http://sm.example.com#name> 'Health monitoring sensor' <http://example.com/ssa>.
+<http://example.com/ssa1> <http://sm.example.com#provided_by> <http://example.com/hospital1> <http://example.com/ssa>.
+
+<http://example.com/john@mail.com> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sm.example.com#User> <http://example.com/user>.
+<http://example.com/john@mail.com> <http://sm.example.com#email> 'john@mail.com' <http://example.com/user>.
+<http://example.com/john@mail.com> <http://sm.example.com#password> 'john' <http://example.com/user>.
+<http://example.com/john@mail.com> <http://sm.example.com#name> 'John Malkovich' <http://example.com/user>.
+<http://example.com/john@mail.com> <http://sm.example.com#doctor> '0' <http://example.com/user>.
+<http://example.com/john@mail.com> <http://sm.example.com#phone> '070 111 111' <http://example.com/user>.
+<http://example.com/john@mail.com> <http://sm.example.com#uses> <http://example.com/ssa1> <http://example.com/user>.
+
+<http://example.com/bob@mail.com> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sm.example.com#User> <http://example.com/user>.
+<http://example.com/bob@mail.com> <http://sm.example.com#email> 'bob@mail.com' <http://example.com/user>.
+<http://example.com/bob@mail.com> <http://sm.example.com#password> 'bob' <http://example.com/user>.
+<http://example.com/bob@mail.com> <http://sm.example.com#name> 'Bob Dob' <http://example.com/user>.
+<http://example.com/bob@mail.com> <http://sm.example.com#doctor> '1' <http://example.com/user>.
+<http://example.com/bob@mail.com> <http://sm.example.com#phone> '070 222 222' <http://example.com/user>.
+<http://example.com/bob@mail.com> <http://sm.example.com#works_at> <http://example.com/hospital1> <http://example.com/user>.
+<http://example.com/bob@mail.com> <http://sm.example.com#uses> <http://example.com/ssa1> <http://example.com/user>.
+
+<http://example.com/sensor1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sm.example.com#HealthSensor> <http://example.com/sensor>.
+<http://example.com/sensor1> <http://sm.example.com#stype> 'Pulse' <http://example.com/sensor>.
+<http://example.com/sensor1> <http://sm.example.com#unit> 'bpm' <http://example.com/sensor>.
+<http://example.com/sensor1> <http://sm.example.com#regular_from> "60" <http://example.com/sensor>.
+<http://example.com/sensor1> <http://sm.example.com#regular_to> "140" <http://example.com/sensor>.
+<http://example.com/sensor1> <http://sm.example.com#id> "1" <http://example.com/sensor>.
+<http://example.com/sensor1> <http://sm.example.com#owner> <http://example.com/bob@mail.com> <http://example.com/sensor>.
+
+<http://example.com/sensor2> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sm.example.com#Sensor> <http://example.com/sensor>.
+<http://example.com/sensor2> <http://sm.example.com#stype> 'Temperature' <http://example.com/sensor>.
+<http://example.com/sensor2> <http://sm.example.com#unit> 'C' <http://example.com/sensor>.
+<http://example.com/sensor2> <http://sm.example.com#id> "2" <http://example.com/sensor>.
+<http://example.com/sensor2> <http://sm.example.com#owner> <http://example.com/john@mail.com> <http://example.com/sensor>.
+
+<http://example.com/observation1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sm.example.com#Observation> <http://example.com/observation>.
+<http://example.com/observation1> <http://sm.example.com#sensor> <http://example.com/sensor1> <http://example.com/observation>.
+<http://example.com/observation1> <http://sm.example.com#val> "66" <http://example.com/observation>.
+<http://example.com/observation1> <http://sm.example.com#time> "1500386600319" <http://example.com/observation>.
+
+<http://example.com/observation2> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sm.example.com#Observation> <http://example.com/observation>.
+<http://example.com/observation2> <http://sm.example.com#sensor> <http://example.com/sensor1> <http://example.com/observation>.
+<http://example.com/observation2> <http://sm.example.com#val> "57" <http://example.com/observation>.
+<http://example.com/observation2> <http://sm.example.com#time> "1500386690319" <http://example.com/observation>.
+
+<http://example.com/observation3> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sm.example.com#Observation> <http://example.com/observation>.
+<http://example.com/observation3> <http://sm.example.com#sensor> <http://example.com/sensor2> <http://example.com/observation>.
+<http://example.com/observation3> <http://sm.example.com#val> "28" <http://example.com/observation>.
+<http://example.com/observation3> <http://sm.example.com#time> "1500386690319" <http://example.com/observation>.
+
+<http://example.com/treatment1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sm.example.com#Treatment> <http://example.com/treatment>.
+<http://example.com/treatment1> <http://sm.example.com#for_patient> <http://example.com/john@mail.com> <http://example.com/treatment>.
+<http://example.com/treatment1> <http://sm.example.com#has_doctor> <http://example.com/bob@mail.com> <http://example.com/treatment>.
+<http://example.com/treatment1> <http://sm.example.com#patient_request> 'Feeling pain and coughing' <http://example.com/treatment>.
+<http://example.com/treatment1> <http://sm.example.com#from> "1500386690319" <http://example.com/treatment>.
+<http://example.com/treatment1> <http://sm.example.com#to> "1500486690319" <http://example.com/treatment>.
+
+<http://example.com/treatment2> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sm.example.com#Treatment> <http://example.com/treatment>.
+<http://example.com/treatment2> <http://sm.example.com#for_patient> <http://example.com/john@mail.com> <http://example.com/treatment>.
+<http://example.com/treatment2> <http://sm.example.com#has_doctor> <http://example.com/bob@mail.com> <http://example.com/treatment>.
+<http://example.com/treatment2> <http://sm.example.com#patient_request> 'Request for blood test' <http://example.com/treatment>.
+<http://example.com/treatment2> <http://sm.example.com#diagnosis> 'Blood diagnosis done. You need to lower the iron level' <http://example.com/treatment>.
+<http://example.com/treatment2> <http://sm.example.com#from> "1500386690319" <http://example.com/treatment>.
+<http://example.com/treatment2> <http://sm.example.com#to> "1500486690319" <http://example.com/treatment>.
+
+<http://example.com/treatment3> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sm.example.com#Treatment> <http://example.com/treatment>.
+<http://example.com/treatment3> <http://sm.example.com#for_patient> <http://example.com/john@mail.com> <http://example.com/treatment>.
+<http://example.com/treatment3> <http://sm.example.com#patient_request> 'Request for blood test' <http://example.com/treatment>.
+<http://example.com/treatment3> <http://sm.example.com#from> "1500386690319" <http://example.com/treatment>.
