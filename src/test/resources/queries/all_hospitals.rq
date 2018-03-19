@@ -5,7 +5,14 @@ PREFIX int: <http://int.example.com#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX sp: <http://spin.com#>
 
-SELECT *
+SELECT ?name ?network_address ?latitude ?longitude
 WHERE {
-        ?hospital rdf:type sm:Hospital .
+        ?s  rdf:type sm:Hospital;
+            sm:name ?name;
+            sm:network_address ?network_address;
+            sm:location ?location.
+
+        ?location sm:latitude ?latitude;
+                  sm:longitude ?longitude.
+
 }

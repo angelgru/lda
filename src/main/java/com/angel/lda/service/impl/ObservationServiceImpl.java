@@ -6,9 +6,9 @@ import com.angel.lda.repository.ObservationRepository;
 import com.angel.lda.repository.SensorRepository;
 import com.angel.lda.service.ObservationService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Date;
 
@@ -29,11 +29,16 @@ public class ObservationServiceImpl implements ObservationService{
     }
 
     @Override
-    public Observation createObservation(Observation observation, int sensorId) throws IllegalAccessException, InvocationTargetException, InstantiationException {
+    public Observation createObservation(Observation observation, int sensorId) throws IllegalAccessException, InvocationTargetException, InstantiationException, IOException {
         Sensor sensor = sensorRepository.findOne(sensorId);
         observation.setTime(new Date());
         observation.setSensor(sensor);
         observationRepository.save(observation);
         return observation;
+    }
+
+    @Override
+    public Observation findOne(int observationId) throws InvocationTargetException, IOException, InstantiationException, IllegalAccessException {
+        return observationRepository.findOne(observationId);
     }
 }

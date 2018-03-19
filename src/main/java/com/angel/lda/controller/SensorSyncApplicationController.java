@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.security.Principal;
 import java.util.List;
@@ -29,12 +30,12 @@ public class SensorSyncApplicationController {
     }
 
     @RequestMapping(value = "/", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<SensorSyncApplication> getAllSensorSyncApplications() throws IllegalAccessException, InstantiationException, InvocationTargetException {
+    public List<SensorSyncApplication> getAllSensorSyncApplications() throws IllegalAccessException, InstantiationException, InvocationTargetException, IOException {
         return sensorSyncApplicationService.getAllSensorSyncApplications();
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public SensorSyncApplication getSensorSyncApplication(@PathVariable("id") int id) throws IllegalAccessException, InstantiationException, InvocationTargetException {
+    public SensorSyncApplication getSensorSyncApplication(@PathVariable("id") int id) throws IllegalAccessException, InstantiationException, InvocationTargetException, IOException {
         return sensorSyncApplicationService.getSensorSyncApplication(id);
     }
 }

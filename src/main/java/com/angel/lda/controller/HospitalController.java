@@ -34,7 +34,7 @@ public class HospitalController {
     }
 
     @RequestMapping(value = "/{hospitalId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Hospital findHospitalById(@PathVariable("hospitalId") int hospitalId) throws IllegalAccessException, InstantiationException, InvocationTargetException {
+    public Hospital findHospitalById(@PathVariable("hospitalId") int hospitalId) throws IllegalAccessException, InstantiationException, InvocationTargetException, IOException {
         return hospitalService.findHospitalById(hospitalId);
     }
 }

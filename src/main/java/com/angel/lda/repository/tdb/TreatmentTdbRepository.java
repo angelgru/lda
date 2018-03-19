@@ -1,22 +1,26 @@
 package com.angel.lda.repository.tdb;
 
 import com.angel.lda.exceptions.ResourceNotFound;
-import com.angel.lda.model.Sensor;
 import com.angel.lda.model.Treatment;
 import com.angel.lda.model.User;
 import com.angel.lda.repository.TreatmentRepository;
 import com.angel.lda.service.UserService;
-import com.angel.lda.utils.StatementToObjectUtil;
+import com.angel.lda.utils.LoadFromTdb;
 import com.angel.lda.utils.StatementsFromTdb;
+import org.apache.commons.io.IOUtils;
 import org.apache.jena.query.Dataset;
-import org.apache.jena.rdf.model.Statement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
-import java.lang.reflect.InvocationTargetException;
-import java.text.ParseException;
-import java.util.*;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by Angel on 2/8/2018.
@@ -40,291 +44,103 @@ public class TreatmentTdbRepository implements TreatmentRepository {
     }
 
     @Override
-    public List<Treatment> getAllNonTakenTreatments() throws IllegalAccessException, InstantiationException, InvocationTargetException, ParseException {
-
+    public List<Treatment> getAllNonTakenTreatments() throws IOException {
         Dataset dataset = datasetProvider.guardedDataset();
 
-        String model = "http://example.com/treatment";
-        String from = "http://sm.example.com#from";
-        String to = "http://sm.example.com#to";
-        String patientRequest = "http://sm.example.com#patient_request";
-        String diagnosis = "http://sm.example.com#diagnosis";
-        String forPatient = "http://sm.example.com#for_patient";
-        String hasDoctor = "http://sm.example.com#has_doctor";
+        String query = IOUtils.toString(this.getClass().getResourceAsStream("/queries/all_non_taken_treatments.rq"), Charset.defaultCharset());
+        List<Treatment> treatments = LoadFromTdb.execQuery(dataset, query, this::prepareTreatment);
 
-        Map<String, String> mapping=new HashMap<>();
-
-        List<Statement> statements = StatementsFromTdb.getStatements(dataset, model, null, null, null);
-
-        mapping.put(from, "setFrom");
-        mapping.put(to, "setTo");
-        mapping.put(patientRequest, "setPatientRequest");
-        mapping.put(diagnosis, "setDiagnosis");
-        mapping.put(forPatient, "setTdbForPatientId");
-        mapping.put(hasDoctor, "setTdbHasDoctor");
-        Collection<Treatment> treatments = StatementToObjectUtil.parseList(statements, Treatment.class, mapping);
-        Iterator<Treatment> iterator = treatments.iterator();
-
-        if(!iterator.hasNext())
-            throw new ResourceNotFound("There aren't any treatments.");
-
-        List<Treatment> treatmentsList = new ArrayList<>();
-        Treatment treatment;
-
-        while(iterator.hasNext()) {
-            treatment = iterator.next();
-
-            String patientEmail = null;
-            if(treatment.getTdbForPatientId() != null)
-                patientEmail = treatment.getTdbForPatientId().substring(19, treatment.getTdbForPatientId().length());
-
-            User patient  = null;
-            if(patientEmail != null) {
-                patient = userTdbRepository.findByEmail(patientEmail);
-            }
-            if(patient != null) {
-                treatment.setForPatient(patient);
-                Set<Sensor> sensors = sensorTdbRepository.getSensorsForUser(patient);
-                patient.setOwnsSensors(sensors);
-            }
-
-            if(treatment.getTdbHasDoctor() == null)
-                treatmentsList.add(treatment);
-        }
-
-        return treatmentsList;
+        if(treatments.isEmpty())
+            throw new ResourceNotFound("There are no unclaimed treatments!");
+        return treatments;
     }
 
     @Override
-    public List<Treatment> getAllTreatmentsAcceptedByCurrentlyLoggedInDoctor(User user) throws IllegalAccessException, InstantiationException, InvocationTargetException {
+    public List<Treatment> getAllTreatmentsAcceptedByCurrentlyLoggedInDoctor(User user) throws IOException {
         Dataset dataset = datasetProvider.guardedDataset();
 
-        String model = "http://example.com/treatment";
-        String from = "http://sm.example.com#from";
-        String to = "http://sm.example.com#to";
-        String patientRequest = "http://sm.example.com#patient_request";
-        String diagnosis = "http://sm.example.com#diagnosis";
-        String forPatient = "http://sm.example.com#for_patient";
-        String hasDoctor = "http://sm.example.com#has_doctor";
+        String data = IOUtils.toString(this.getClass().getResourceAsStream("/queries/all_treatments_accepted_by_doctor_without_diagnosis.rq"), Charset.defaultCharset());
+        String query = getTreatmentQuery(data, user.getEmail());
+        List<Treatment> treatments = LoadFromTdb.execQuery(dataset, query, this::prepareTreatment);
 
-        Map<String, String> mapping=new HashMap<>();
-
-        List<Statement> statements = StatementsFromTdb.getStatements(dataset, model, null, null, null);
-
-        mapping.put(from, "setFrom");
-        mapping.put(to, "setTo");
-        mapping.put(patientRequest, "setPatientRequest");
-        mapping.put(diagnosis, "setDiagnosis");
-        mapping.put(forPatient, "setTdbForPatientId");
-        mapping.put(hasDoctor, "setTdbHasDoctor");
-        Collection<Treatment> treatments = StatementToObjectUtil.parseList(statements, Treatment.class, mapping);
-        Iterator<Treatment> iterator = treatments.iterator();
-
-        if(!iterator.hasNext())
-            throw new ResourceNotFound("There aren't any treatments.");
-
-        List<Treatment> treatmentsList = new ArrayList<>();
-        Treatment treatment;
-
-        while(iterator.hasNext()) {
-            treatment = iterator.next();
-
-            String patientEmail = null;
-            if(treatment.getTdbForPatientId() != null)
-                patientEmail = treatment.getTdbForPatientId().substring(19, treatment.getTdbForPatientId().length());
-
-            User patient = null;
-            if(patientEmail != null)
-                patient = userTdbRepository.findByEmail(patientEmail);
-
-            if(patient != null) {
-                treatment.setForPatient(patient);
-                Set<Sensor> sensors = sensorTdbRepository.getSensorsForUser(patient);
-                patient.setOwnsSensors(sensors);
-            }
-
-            String treatmentDoctor = null;
-            String loggedInUser = "http://example.com/" + user.getEmail();
-            if(treatment.getTdbHasDoctor() != null){
-                treatmentDoctor = treatment.getTdbHasDoctor();
-            }
-
-            if(loggedInUser.equals(treatmentDoctor)) {
-                treatmentsList.add(treatment);
-            }
-        }
-
-        return treatmentsList;
+        if(treatments.isEmpty())
+            throw new ResourceNotFound("There are no accepted treatments without diagnosis for this doctor!");
+        return treatments;
     }
 
     @Override
-    public List<Treatment> getCompletedTreatmentsAcceptedByCurrentlyLoggedInDoctor(User user) throws IllegalAccessException, InstantiationException, InvocationTargetException {
+    public List<Treatment> getCompletedTreatmentsAcceptedByCurrentlyLoggedInDoctor(User user) throws IOException {
         Dataset dataset = datasetProvider.guardedDataset();
 
-        String model = "http://example.com/treatment";
-        String from = "http://sm.example.com#from";
-        String to = "http://sm.example.com#to";
-        String patientRequest = "http://sm.example.com#patient_request";
-        String diagnosis = "http://sm.example.com#diagnosis";
-        String forPatient = "http://sm.example.com#for_patient";
-        String hasDoctor = "http://sm.example.com#has_doctor";
+        String data = IOUtils.toString(this.getClass().getResourceAsStream("/queries/all_treatments_accepted_by_doctor_with_diagnosis.rq"), Charset.defaultCharset());
+        String query = getTreatmentQuery(data, user.getEmail());
+        List<Treatment> treatments = LoadFromTdb.execQuery(dataset, query, this::prepareTreatment);
 
-        Map<String, String> mapping=new HashMap<>();
-
-        List<Statement> statements = StatementsFromTdb.getStatements(dataset, model, null, null, null);
-
-        mapping.put(from, "setFrom");
-        mapping.put(to, "setTo");
-        mapping.put(patientRequest, "setPatientRequest");
-        mapping.put(diagnosis, "setDiagnosis");
-        mapping.put(forPatient, "setTdbForPatientId");
-        mapping.put(hasDoctor, "setTdbHasDoctor");
-        Collection<Treatment> treatments = StatementToObjectUtil.parseList(statements, Treatment.class, mapping);
-        Iterator<Treatment> iterator = treatments.iterator();
-
-        if(!iterator.hasNext())
-            throw new ResourceNotFound("There aren't any treatments.");
-
-        List<Treatment> treatmentsList = new ArrayList<>();
-        Treatment treatment;
-
-        while(iterator.hasNext()) {
-            treatment = iterator.next();
-
-
-            String patientEmail = treatment.getTdbForPatientId().substring(19, treatment.getTdbForPatientId().length());
-
-            User patient = userTdbRepository.findByEmail(patientEmail);
-            if(patient != null) {
-                treatment.setForPatient(patient);
-                Set<Sensor> sensors = sensorTdbRepository.getSensorsForUser(patient);
-                patient.setOwnsSensors(sensors);
-            }
-
-            String treatmentDoctor = null;
-            String loggedInUser = "http://example.com/" + user.getEmail();
-            if(treatment.getTdbHasDoctor() != null){
-                treatmentDoctor = treatment.getTdbHasDoctor().trim();
-            }
-
-            if(loggedInUser.equals(treatmentDoctor) && treatment.getDiagnosis() != null) {
-                treatmentsList.add(treatment);
-            }
-        }
-
-        return treatmentsList;
+        if(treatments.isEmpty())
+            throw new ResourceNotFound("There are no accepted treatments with diagnosis for this doctor!");
+        return treatments;
     }
 
     @Override
-    public Treatment getTreatmentById(User user, int id) throws IllegalAccessException, InvocationTargetException, InstantiationException {
+    public Treatment getTreatmentById(User user, int id) throws IOException {
         Dataset dataset = datasetProvider.guardedDataset();
 
-        String model = "http://example.com/treatment";
-        String subject = "http://example.com/treatment" + id;
-        String from = "http://sm.example.com#from";
-        String to = "http://sm.example.com#to";
-        String patientRequest = "http://sm.example.com#patient_request";
-        String diagnosis = "http://sm.example.com#diagnosis";
-        String forPatient = "http://sm.example.com#for_patient";
-        String hasDoctor = "http://sm.example.com#has_doctor";
-
-        Map<String, String> mapping=new HashMap<>();
-
-        List<Statement> statements = StatementsFromTdb.getStatements(dataset, model, subject, null, null);
-
-        mapping.put(from, "setTdbFrom");
-        mapping.put(to, "setTdbTo");
-        mapping.put(patientRequest, "setPatientRequest");
-        mapping.put(diagnosis, "setDiagnosis");
-        mapping.put(forPatient, "setTdbForPatientId");
-        mapping.put(hasDoctor, "setTdbHasDoctor");
-        Collection<Treatment> treatments = StatementToObjectUtil.parseList(statements, Treatment.class, mapping);
-        Iterator<Treatment> iterator = treatments.iterator();
-
-        if(!iterator.hasNext())
-            throw new ResourceNotFound("There aren't any treatments.");
-
-        Treatment treatment = null;
-
-        while(iterator.hasNext()) {
-            treatment = iterator.next();
-            String patientEmail = treatment.getTdbForPatientId().substring(19, treatment.getTdbForPatientId().length());
-
-            User patient = userTdbRepository.findByEmail(patientEmail);
-            if(patient != null) {
-                treatment.setForPatient(patient);
-                Set<Sensor> sensors = sensorTdbRepository.getSensorsForUser(patient);
-                patient.setOwnsSensors(sensors);
-            }
-
-            if(treatment.getTdbHasDoctor() != null && treatment.getTdbHasDoctor().equals("http://example.com/" + user.getEmail())) {
-                treatment.setHasDoctor(user);
-            } else{
-                treatment = null;
-            }
-
-
-        }
-        if(treatment == null)
-            throw new ResourceNotFound("Non existing treatment!");
-        return treatment;
+        String data = IOUtils.toString(this.getClass().getResourceAsStream("/queries/one_treatment.rq"), Charset.defaultCharset());
+        String query = getTreatmentQuery(data, id, user.getEmail());
+        List<Treatment> treatments = LoadFromTdb.execQuery(dataset, query, this::prepareTreatment);
+        if(treatments.isEmpty())
+            throw new ResourceNotFound("Treatment doesn't exist in our system");
+        return treatments.get(0);
     }
 
     @Override
-    public Treatment findOne(int id) throws IllegalAccessException, InstantiationException, InvocationTargetException {
-        Dataset dataset = datasetProvider.guardedDataset();
+    public Treatment findOne(int id) throws IOException {
+        return null;
+    }
 
-        String model = "http://example.com/treatment";
-        String subject = "http://example.com/treatment" + id;
-        String from = "http://sm.example.com#from";
-        String to = "http://sm.example.com#to";
-        String patientRequest = "http://sm.example.com#patient_request";
-        String diagnosis = "http://sm.example.com#diagnosis";
-        String forPatient = "http://sm.example.com#for_patient";
-        String hasDoctor = "http://sm.example.com#has_doctor";
+    private String getTreatmentQuery(String data, int treatmentId, String doctor) {
+        return String.format(data, treatmentId, doctor, treatmentId, treatmentId, doctor);
+    }
 
-        Map<String, String> mapping=new HashMap<>();
+    private String getTreatmentQuery(String data, String doctor) {
+        return String.format(data, doctor);
+    }
 
-        List<Statement> statements = StatementsFromTdb.getStatements(dataset, model, subject, null, null);
-        System.out.println("STATEMENTS NUMBER " + statements.size());
+    private Treatment prepareTreatment(Map<String, String> m) {
+        Treatment treatment = new Treatment();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(Long.valueOf(m.get("from")));
+        treatment.setFrom(calendar.getTime());
+        treatment.setPatientRequest(m.get("patient_request"));
 
-        mapping.put(from, "setTdbFrom");
-        mapping.put(to, "setTdbTo");
-        mapping.put(patientRequest, "setPatientRequest");
-        mapping.put(diagnosis, "setDiagnosis");
-        mapping.put(forPatient, "setTdbForPatientId");
-        mapping.put(hasDoctor, "setTdbHasDoctor");
-        Collection<Treatment> treatments = StatementToObjectUtil.parseList(statements, Treatment.class, mapping);
-        Iterator<Treatment> iterator = treatments.iterator();
-
-        if(!iterator.hasNext())
-            throw new ResourceNotFound("There aren't any treatments.");
-
-        Treatment treatment = null;
-
-        while(iterator.hasNext()) {
-            treatment = iterator.next();
-            String patientEmail = treatment.getTdbForPatientId().substring(19, treatment.getTdbForPatientId().length());
-
-            User patient = userService.getUserByEmail(patientEmail);
-            if(patient != null) {
-                treatment.setForPatient(patient);
-                Set<Sensor> sensors = sensorTdbRepository.getSensorsForUser(patient);
-                patient.setOwnsSensors(sensors);
-            }
-
-            String doctorEmail;
-            doctorEmail = treatment.getTdbHasDoctor().substring(19, treatment.getTdbHasDoctor().length());
-
-            User doctor = null;
-            if(doctorEmail != null) {
-                doctor = userTdbRepository.findByEmail(doctorEmail);
-            }
-            if(doctor != null)
-                treatment.setHasDoctor(doctor);
+        User user = new User();
+        user.setEmail(m.get("email"));
+        user.setName(m.get("name"));
+        if(m.get("phone") != null) {
+            user.setPhoneNumber(m.get("phone"));
         }
-        if(treatment == null)
-            throw new ResourceNotFound("Non existing treatment!");
+
+        if(m.get("emergency_phone") != null) {
+            user.setEmergencyPhone(m.get("emergency_phone"));
+        }
+
+        if(m.get("to") != null) {
+            calendar.setTimeInMillis(Long.valueOf(m.get("to")));
+            treatment.setTo(calendar.getTime());
+        }
+
+        if(m.get("diagnosis") != null) {
+            treatment.setDiagnosis(m.get("diagnosis"));
+        }
+
+        if(m.get("doctorEmail") != null) {
+            User doctor = new User();
+            doctor.setEmail(m.get("doctorEmail"));
+            treatment.setHasDoctor(doctor);
+        }
+
+        treatment.setForPatient(user);
+
         return treatment;
     }
 
@@ -352,7 +168,6 @@ public class TreatmentTdbRepository implements TreatmentRepository {
             StatementsFromTdb.addStatement(dataset, model, subject, diagnosis, newTreatment.getDiagnosis());
             StatementsFromTdb.addStatement(dataset, model, subject, to, String.valueOf(newTreatment.getTo().getTime()));
         } else if(newTreatment.getHasDoctor() != null) {
-            System.out.println("DOCTOR EMAIL: " + newTreatment.getHasDoctor().getEmail());
             StatementsFromTdb.addStatement(dataset, model, subject, hasDoctor, "http://example.com/" + newTreatment.getHasDoctor().getEmail());
         } else {
             StatementsFromTdb.addStatement(dataset, model, subject, from, String.valueOf(newTreatment.getFrom().getTime()));
@@ -361,10 +176,5 @@ public class TreatmentTdbRepository implements TreatmentRepository {
         }
 
         return newTreatment;
-    }
-
-    @Override
-    public void delete(int id) {
-
     }
 }

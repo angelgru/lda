@@ -2,8 +2,8 @@ package com.angel.lda.service;
 
 import com.angel.lda.model.Observation;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.List;
 
 /**
  * Created by Angel on 1/1/2018.
@@ -11,5 +11,7 @@ import java.util.List;
 
 public interface ObservationService {
 
-    public Observation createObservation(Observation observation, int sensorId) throws IllegalAccessException, InvocationTargetException, InstantiationException;
+    Observation createObservation(Observation observation, int sensorId) throws IllegalAccessException, InvocationTargetException, InstantiationException, IOException;
+
+    Observation findOne(int observationId) throws InvocationTargetException, IOException, InstantiationException, IllegalAccessException;
 }

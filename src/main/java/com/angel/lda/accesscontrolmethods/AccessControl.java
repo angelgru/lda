@@ -9,7 +9,10 @@ import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by Angel on 1/28/2018.
@@ -23,11 +26,7 @@ public class AccessControl {
 //    A2 Users’ mobile and emergency phones are private
     public boolean A2(User user){
 
-        if(user.getPhoneNumber() != null) {
-            throw new UserValuesExposed("User mobile and emergency phone values exposed publicly");
-        }
-
-        if(user.getEmergencyPhone() != null) {
+        if(user.getPhoneNumber() != null || user.getEmergencyPhone() != null) {
             throw new UserValuesExposed("User mobile and emergency phone values exposed publicly");
         }
 
@@ -44,16 +43,10 @@ public class AccessControl {
 //    U2 The users can manage their name, phone and emergency phone.
 //    Ако е направена промена на недозволени полиња, истата нема да се зачува во базата и ќе се фрли грешка
     public boolean U2(User modifiedUser, User originalUser) {
-        if(!originalUser.getPassword().equals(modifiedUser.getPassword()))
-            return false;
-
-        if(!originalUser.getEmail().equals(modifiedUser.getEmail()))
-            return false;
-
-        return true;
+        return originalUser.getPassword().equals(modifiedUser.getPassword()) && originalUser.getEmail().equals(modifiedUser.getEmail());
     }
 
-//    P1 The patients can access everything about the doctors from ex:hospital
+//    P1 The patients can access everything about the doctors from Saint P.
 //    Филтрирање на листата од доктори при што ги враќам само оние кои работат во болницата со име Saint P.
     @PostFilter("filterObject.worksAtHospital.name.equals('Saint P.')")
     public List<User>  P1(List<User> doctors) {
@@ -67,20 +60,12 @@ public class AccessControl {
     public boolean D1(String doctorIpAddress, User doctor){
         DateTime dateTime = new DateTime();
         int hour = dateTime.getHourOfDay();
-        String[] doctorIP;
-        String hospitalIPAddress = null;
+        String hospitalNetworkAddress = "192.168.100";
+        String[] tmpIp = doctorIpAddress.split("\\.");
+        doctorIpAddress = tmpIp[0] + "." + tmpIp[1] + "." + tmpIp[2];
 
-        if(!doctorIpAddress.equals("0:0:0:0:0:0:0:1")) {
-            doctorIP = doctorIpAddress.split(".");
-            doctorIpAddress = doctorIP[0] + "." + doctorIP[1] + "." + doctorIP[2];
-            hospitalIPAddress = doctor.getWorksAtHospital().getNetworkAddress();
-        }
+        return (doctorIpAddress.equals("0:0:0:0:0:0:0:1") || doctorIpAddress.equals(hospitalNetworkAddress)) && (hour >= 8 && hour < 24);
 
-        if((doctorIpAddress.equals("0:0:0:0:0:0:0:1") || doctorIpAddress.equals(hospitalIPAddress)) && (hour >= 8 && hour <24)) {
-            return true;
-        }
-
-        return false;
     }
 
 //    D2 The doctors can not modify the measurements out of their treatment timespan
@@ -107,12 +92,9 @@ public class AccessControl {
 //    Doctor's can not set a diagnosis for treatment that doesn't belong to them
 //    Дополнителна полиса каде проверувам дали лекувањето е земено од докторот пред да може истиот да постави дијагноза
     public boolean isTreatmentTakenByDoctor(Treatment treatment, User user) {
-        if(treatment == null)
-            System.out.println("Treatment is null");
-        return treatment.getHasDoctor().getEmail().equals(user.getEmail());
+        return treatment != null && treatment.getHasDoctor().getEmail().equals(user.getEmail());
     }
 
-//    Can take treatments
 //    Only doctors are allowed to claim treatments
     public boolean canTakeTreatments(User user) {
         return (user.getDoctor() == 1);

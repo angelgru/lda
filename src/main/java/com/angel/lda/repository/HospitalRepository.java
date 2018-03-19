@@ -16,6 +16,6 @@ public interface HospitalRepository {
 
   List<Hospital> findAll() throws IllegalAccessException, InstantiationException, InvocationTargetException, IOException;
 
-  Hospital findOne(int hospitalId) throws IllegalAccessException, InstantiationException, InvocationTargetException;
+  Hospital findOne(int hospitalId) throws IllegalAccessException, InstantiationException, InvocationTargetException, IOException;
 
 }

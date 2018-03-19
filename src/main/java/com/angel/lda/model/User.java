@@ -48,12 +48,6 @@ public class User {
     @OneToMany(mappedBy = "hasDoctor", cascade = CascadeType.ALL)
     private Set<Treatment> isDoctorForTreatments;
 
-    @JsonIgnore
-    private String tdbWorksAtHospitalId;
-
-    @JsonIgnore
-    private String tdbUsesSensorSyncApplicationId;
-
     public User() {
     }
 
@@ -77,8 +71,6 @@ public class User {
         newUser.setDoctor(user.getDoctor());
         if(user.getWorksAtHospital() != null)
             newUser.setWorksAtHospital(user.getWorksAtHospital());
-        newUser.setTdbWorksAtHospitalId(user.getTdbWorksAtHospitalId());
-        newUser.setTdbUsesSensorSyncApplicationId(user.getTdbUsesSensorSyncApplicationId());
         return newUser;
     }
 
@@ -184,21 +176,5 @@ public class User {
 
     public void setIsDoctorForTreatments(Set<Treatment> isDoctorForTreatments) {
         this.isDoctorForTreatments = isDoctorForTreatments;
-    }
-
-    public String getTdbWorksAtHospitalId() {
-        return tdbWorksAtHospitalId;
-    }
-
-    public void setTdbWorksAtHospitalId(String tdbWorksAtHospitalId) {
-        this.tdbWorksAtHospitalId = tdbWorksAtHospitalId;
-    }
-
-    public String getTdbUsesSensorSyncApplicationId() {
-        return tdbUsesSensorSyncApplicationId;
-    }
-
-    public void setTdbUsesSensorSyncApplicationId(String tdbUsesSensorSyncApplicationId) {
-        this.tdbUsesSensorSyncApplicationId = tdbUsesSensorSyncApplicationId;
     }
 }

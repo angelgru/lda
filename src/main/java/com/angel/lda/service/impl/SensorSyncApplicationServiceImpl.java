@@ -6,7 +6,7 @@ import com.angel.lda.service.SensorSyncApplicationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.InvocationTargetException;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -24,12 +24,12 @@ public class SensorSyncApplicationServiceImpl implements SensorSyncApplicationSe
     }
 
     @Override
-    public List<SensorSyncApplication> getAllSensorSyncApplications() throws IllegalAccessException, InvocationTargetException, InstantiationException {
+    public List<SensorSyncApplication> getAllSensorSyncApplications() throws IOException {
         return sensorSyncApplicationRepository.findAll();
     }
 
     @Override
-    public SensorSyncApplication getSensorSyncApplication(int id) throws IllegalAccessException, InvocationTargetException, InstantiationException {
+    public SensorSyncApplication getSensorSyncApplication(int id) throws IOException {
         return sensorSyncApplicationRepository.findOne(id);
     }
 }

@@ -7,7 +7,7 @@ PREFIX sp: <http://spin.com#>
 
 SELECT *
 WHERE {
-        ?sensor sm:owner ex:bob .
+        ?sensor sm:owner ex:bob@mail.com .
         ?s sm:sensor ?sensor .
         ?s ?p ?o .
 }

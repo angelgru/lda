@@ -2,18 +2,20 @@ package com.angel.lda;
 
 import com.angel.lda.model.Observation;
 import com.angel.lda.model.Sensor;
+import com.angel.lda.model.Treatment;
+import com.angel.lda.model.User;
 import com.angel.lda.repository.ObservationRepository;
 import com.angel.lda.repository.tdb.DatasetProvider;
 import com.angel.lda.service.HospitalService;
 import com.angel.lda.service.SensorService;
 import com.angel.lda.service.TreatmentService;
+import com.angel.lda.service.UserService;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.*;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFParser;
 import org.apache.jena.riot.system.ErrorHandlerFactory;
@@ -57,6 +59,9 @@ public class SQLTest {
     @Autowired
     ObservationRepository observationRepository;
 
+    @Autowired
+    UserService userService;
+
     static int ITERATIONS = 100;
     static int STEP = 2500;
     static int WARM = 10;
@@ -70,13 +75,28 @@ public class SQLTest {
         Model bobIntent = extractIntent(new ImmutablePair<>(bobIntentString, Lang.JSONLD));
         Model johnIntent = extractIntent(new ImmutablePair<>(johnIntentString, Lang.JSONLD));
 
+        StmtIterator iterator = bobIntent.listStatements();
+
+        String ipAddress = null;
+        String username = null;
+
+        while(iterator.hasNext()) {
+            Statement s = iterator.nextStatement();
+            Property property = s.getPredicate();
+            if(property.toString().equals("http://int.example.com#ip_value")) {
+                ipAddress = s.getObject().toString();
+            } else if(property.toString().equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#id")){
+                username = s.getObject().toString();
+            }
+        }
+
         System.out.println("=============== START =========================");
         long total = 0;
         for (int i = 0; i < ITERATIONS; i++) {
             total = createObservationsWithoutAuthentication(STEP, i);
             System.out.println("create\t" + i + "\t" + (total / STEP));
 
-            Authentication authentication = new UsernamePasswordAuthenticationToken("bob@mail.com", "bob");
+            Authentication authentication = new UsernamePasswordAuthenticationToken("bob", "bob");
             SecurityContext securityContext = SecurityContextHolder.getContext();
             securityContext.setAuthentication(authentication);
 
@@ -84,6 +104,18 @@ public class SQLTest {
             eval("getAllUnclaimedTreatments", i, WARM/2, EVAL/2, j -> treatmentService.getAllNonTakenTreatments());
             eval("getCompleted", i, WARM/2, EVAL/2, j -> treatmentService.getCompletedTreatmentsAcceptedByCurrentlyLoggedInDoctor());
             eval("getAccepted", i, WARM/2, EVAL/2, j -> treatmentService.getAllTreatmentsAcceptedByCurrentlyLoggedInDoctor());
+
+            Treatment newTreatment = new Treatment();
+            newTreatment.setDiagnosis("test diagnosis");
+            String ip = ipAddress;
+            eval("updateTreatment", i, WARM/2, EVAL/2, j -> treatmentService.updateTreatment(newTreatment, 1, ip));
+
+            Treatment treatment = new Treatment();
+            treatment.setFrom(new Date());
+            treatment.setPatientRequest("Test treatment");
+            User user = userService.getUserByEmail("bob@mail.com");
+            treatment.setForPatient(user);
+            eval("createTreatment", i,WARM/2, EVAL/2, j -> treatmentService.createTreatment(treatment));
 
         }
     }
@@ -122,7 +154,7 @@ public class SQLTest {
         return model;
     }
 
-    public long createObservationsWithoutAuthentication(int count, int iteration) throws IllegalAccessException, InstantiationException, InvocationTargetException {
+    public long createObservationsWithoutAuthentication(int count, int iteration) throws IllegalAccessException, InstantiationException, InvocationTargetException, IOException {
         long start = System.nanoTime();
 
         for (int i = 0; i < count; i++) {

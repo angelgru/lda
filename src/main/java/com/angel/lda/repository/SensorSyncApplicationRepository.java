@@ -4,6 +4,7 @@ import com.angel.lda.model.SensorSyncApplication;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -12,7 +13,7 @@ import java.util.List;
 
 @Repository
 public interface SensorSyncApplicationRepository{
-    SensorSyncApplication findOne(int id);
+    SensorSyncApplication findOne(int id) throws IOException;
 
-    List<SensorSyncApplication> findAll();
+    List<SensorSyncApplication> findAll() throws IOException;
 }

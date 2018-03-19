@@ -9,11 +9,11 @@ import com.angel.lda.service.UserService;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.jena.base.Sys;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.query.ReadWrite;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.*;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFLanguages;
 import org.apache.jena.riot.RDFParser;
@@ -23,22 +23,16 @@ import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.web.client.RestOperations;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.time.ZonedDateTime;
 import java.util.Date;
@@ -87,6 +81,21 @@ public class Test {
     Model bobIntent = extractIntent(new ImmutablePair<>(bobIntentString, Lang.JSONLD));
     Model johnIntent = extractIntent(new ImmutablePair<>(johnIntentString, Lang.JSONLD));
 
+    StmtIterator iterator = bobIntent.listStatements();
+
+    String ipAddress = null;
+    String username = null;
+
+    while(iterator.hasNext()) {
+      Statement s = iterator.nextStatement();
+      Property property = s.getPredicate();
+      if(property.toString().equals("http://int.example.com#ip_value")) {
+        ipAddress = s.getObject().toString();
+      } else if(property.toString().equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#id")){
+        username = s.getObject().toString();
+      }
+    }
+
     String data = IOUtils.toString(this.getClass().getResourceAsStream("/in/template-new-observation.trig"), Charset.defaultCharset());
 //    String query = IOUtils.toString(this.getClass().getResourceAsStream("/queries/observations.rq"), Charset.defaultCharset());
 //    String johnsQuery = IOUtils.toString(this.getClass().getResourceAsStream("/queries/johns-observations.rq"), Charset.defaultCharset());
@@ -99,7 +108,7 @@ public class Test {
       total = createObservationsWithoutAuthentication(data, STEP, i);
       System.out.println("create\t" + i + "\t" + (total / STEP));
 
-      Authentication authentication = new UsernamePasswordAuthenticationToken("bob@mail.com", "bob");
+      Authentication authentication = new UsernamePasswordAuthenticationToken("bob", "bob");
       SecurityContext securityContext = SecurityContextHolder.getContext();
       securityContext.setAuthentication(authentication);
 
@@ -107,11 +116,16 @@ public class Test {
       eval("getAllUnclaimedTreatments", i, WARM/2, EVAL/2, j -> treatmentService.getAllNonTakenTreatments());
       eval("getCompleted", i, WARM/2, EVAL/2, j -> treatmentService.getCompletedTreatmentsAcceptedByCurrentlyLoggedInDoctor());
       eval("getAccepted", i, WARM/2, EVAL/2, j -> treatmentService.getAllTreatmentsAcceptedByCurrentlyLoggedInDoctor());
+      Treatment newTreatment = new Treatment();
+      newTreatment.setDiagnosis("test diagnosis");
+      String ip = ipAddress;
+      eval("updateTreatment", i, WARM/2, EVAL/2, j -> treatmentService.updateTreatment(newTreatment, 1, ip));
+
 
       Treatment treatment = new Treatment();
       treatment.setFrom(new Date());
       treatment.setPatientRequest("Test treatment");
-      User user = userService.getUserByEmail("bob@mail.com");
+      User user = userService.getUserByEmail("bob");
       treatment.setForPatient(user);
       eval("createTreatment", i,WARM/2, EVAL/2, j -> treatmentService.createTreatment(treatment));
 

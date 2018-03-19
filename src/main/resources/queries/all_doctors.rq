@@ -1,0 +1,36 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX ex: <http://example.com/>
+PREFIX sm: <http://sm.example.com#>
+PREFIX int: <http://int.example.com#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX sp: <http://spin.com#>
+
+SELECT ?email ?password ?name ?doctor ?phone ?emergency_phone ?hospital_name ?network_address ?sensor_sync_app_name
+WHERE {
+        ex:%s  rdf:type sm:User;
+            sm:email ?email;
+            sm:password ?password;
+            sm:name ?name;
+            sm:doctor '1'.
+
+        OPTIONAL {
+            ex:%s sm:phone ?phone.
+        }
+
+        OPTIONAL {
+            ex:%s sm:emergency_phone ?emergency_phone.
+        }
+
+        OPTIONAL {
+            ex:%s sm:works_at ?hospital.
+
+            ?hospital sm:name ?hospital_name;
+                sm:network_address ?network_address.
+        }
+
+        OPTIONAL {
+            ex:%s sm:uses ?sensor_sync_app.
+
+            ?sensor_sync_app ?name ?sensor_sync_app_name.
+        }
+}

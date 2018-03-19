@@ -1,0 +1,17 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX ex: <http://example.com/>
+PREFIX sm: <http://sm.example.com#>
+PREFIX int: <http://int.example.com#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX sp: <http://spin.com#>
+
+SELECT ?stype ?unit ?regular_from ?regular_to
+WHERE {
+        ex:sensor%d  rdf:type sm:HealthSensor;
+            sm:stype ?stype;
+            sm:unit ?unit .
+        OPTIONAL {
+            ex:sensor%d  sm:regular_from ?regular_from;
+                         sm:regular_to ?regular_to .
+        }
+}

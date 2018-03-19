@@ -35,16 +35,6 @@ public class Treatment {
     @ManyToOne
     private User hasDoctor;
 
-    @JsonIgnore
-    private String tdbForPatientId;
-    @JsonIgnore
-    private String tdbHasDoctor;
-    @JsonIgnore
-    private String tdbFrom;
-    @JsonIgnore
-    private String tdbTo;
-
-
     public Treatment() {
     }
 
@@ -121,37 +111,5 @@ public class Treatment {
 
     public void setDiagnosis(String diagnosis) {
         this.diagnosis = diagnosis;
-    }
-
-    public String getTdbForPatientId() {
-        return tdbForPatientId;
-    }
-
-    public void setTdbForPatientId(String tdbForPatientId) {
-        this.tdbForPatientId = tdbForPatientId;
-    }
-
-    public String getTdbFrom() {
-        return tdbFrom;
-    }
-
-    public void setTdbFrom(String tdbFrom) {
-        this.tdbFrom = tdbFrom;
-    }
-
-    public String getTdbTo() {
-        return tdbTo;
-    }
-
-    public void setTdbTo(String tdbTo) {
-        this.tdbTo = tdbTo;
-    }
-
-    public String getTdbHasDoctor() {
-        return tdbHasDoctor;
-    }
-
-    public void setTdbHasDoctor(String tdbHasDoctor) {
-        this.tdbHasDoctor = tdbHasDoctor;
     }
 }

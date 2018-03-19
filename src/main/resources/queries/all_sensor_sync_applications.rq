@@ -1,0 +1,20 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX ex: <http://example.com/>
+PREFIX sm: <http://sm.example.com#>
+PREFIX int: <http://int.example.com#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX sp: <http://spin.com#>
+
+SELECT ?name ?hospital_name ?network_address ?latitude ?longitude
+WHERE {
+        ?s  rdf:type sm:SensorSyncApplicaton;
+            sm:name ?name;
+            sm:provided_by ?hospital.
+
+        ?hospital sm:name ?hospital_name;
+                  sm:network_address ?network_address;
+                  sm:location ?location.
+
+        ?location sm:latitude ?latitude;
+                  sm:longitude ?longitude.
+}

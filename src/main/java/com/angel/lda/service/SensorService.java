@@ -2,6 +2,7 @@ package com.angel.lda.service;
 
 import com.angel.lda.model.Sensor;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
@@ -10,10 +11,8 @@ import java.util.List;
  */
 public interface SensorService {
 
-    public Sensor createSensor(Sensor sensor) throws IllegalAccessException, InvocationTargetException, InstantiationException;
+    Sensor createSensor(Sensor sensor) throws IllegalAccessException, InvocationTargetException, InstantiationException, IOException;
 
-    public Sensor updateSensor(Sensor sensor, int sensorId) throws IllegalAccessException, InvocationTargetException, InstantiationException;
-
-    public Sensor findSensor(int id) throws IllegalAccessException, InvocationTargetException, InstantiationException;
+    Sensor findSensor(int id) throws IllegalAccessException, InvocationTargetException, InstantiationException, IOException;
 
 }

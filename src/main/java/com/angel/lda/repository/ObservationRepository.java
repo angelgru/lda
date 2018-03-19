@@ -4,6 +4,7 @@ import com.angel.lda.model.Observation;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
 /**
@@ -14,5 +15,5 @@ import java.lang.reflect.InvocationTargetException;
 public interface ObservationRepository {
     Observation save(Observation observation);
 
-    Observation findOne(int observationId) throws IllegalAccessException, InvocationTargetException, InstantiationException;
+    Observation findOne(int observationId) throws IllegalAccessException, InvocationTargetException, InstantiationException, IOException;
 }

@@ -27,9 +27,6 @@ public class Observation {
     @ManyToOne
     private Sensor sensor;
 
-    @JsonIgnore
-    private String tdbSensorId;
-
     public Observation() {
     }
 
@@ -63,13 +60,5 @@ public class Observation {
 
     public void setTime(Date time) {
         this.time = time;
-    }
-
-    public String getTdbSensorId() {
-        return tdbSensorId;
-    }
-
-    public void setTdbSensorId(String tdbSensorId) {
-        this.tdbSensorId = tdbSensorId;
     }
 }

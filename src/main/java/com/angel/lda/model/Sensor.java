@@ -34,9 +34,6 @@ public class Sensor {
     @OneToMany(mappedBy = "sensor", cascade = CascadeType.ALL)
     private Set<Observation> usedInObservations;
 
-    @JsonIgnore
-    private String tdbUserId;
-
     public Sensor() {
     }
 
@@ -106,13 +103,5 @@ public class Sensor {
 
     public void setUsedInObservations(Set<Observation> usedInObservations) {
         this.usedInObservations = usedInObservations;
-    }
-
-    public String getTdbUserId() {
-        return tdbUserId;
-    }
-
-    public void setTdbUserId(String tdbUserId) {
-        this.tdbUserId = tdbUserId;
     }
 }

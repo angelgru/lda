@@ -10,7 +10,6 @@ import java.util.List;
 /**
  * Created by Angel on 2/21/2018.
  */
-@SuppressWarnings("Duplicates")
 public class StatementsFromTdb {
     public static List<Statement> getStatements(Dataset ds, String modelName, String subject, String property, String object) {
         List<Statement> results = new ArrayList<Statement>();

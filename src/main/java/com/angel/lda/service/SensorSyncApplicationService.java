@@ -2,7 +2,7 @@ package com.angel.lda.service;
 
 import com.angel.lda.model.SensorSyncApplication;
 
-import java.lang.reflect.InvocationTargetException;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -10,7 +10,7 @@ import java.util.List;
  */
 public interface SensorSyncApplicationService {
 
-    public List<SensorSyncApplication> getAllSensorSyncApplications() throws IllegalAccessException, InvocationTargetException, InstantiationException;
+    List<SensorSyncApplication> getAllSensorSyncApplications() throws IOException;
 
-    public SensorSyncApplication getSensorSyncApplication(int id) throws IllegalAccessException, InvocationTargetException, InstantiationException;
+    SensorSyncApplication getSensorSyncApplication(int id) throws IOException;
 }

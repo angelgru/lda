@@ -4,6 +4,7 @@ import com.angel.lda.model.Sensor;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
 /**
@@ -12,9 +13,7 @@ import java.lang.reflect.InvocationTargetException;
 
 @Repository
 public interface SensorRepository{
-    Sensor save(Sensor sensor);
+    Sensor save(Sensor sensor) throws IOException;
 
-    Sensor findOne(int sensorId) throws IllegalAccessException, InstantiationException, InvocationTargetException;
-
-    void delete(Sensor sensorToBeDeleted);
+    Sensor findOne(int sensorId) throws IllegalAccessException, InstantiationException, InvocationTargetException, IOException;
 }

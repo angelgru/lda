@@ -1,12 +1,15 @@
 package com.angel.lda.controller;
 
 import com.angel.lda.model.User;
-import com.angel.lda.repository.tdb.UserTdbRepository;
 import com.angel.lda.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
@@ -26,22 +29,17 @@ public class UserController {
     }
 
     @RequestMapping(value = "/create", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public User createUser(@RequestBody User user) {
+    public User createUser(@RequestBody User user) throws IOException {
         return userService.createUser(user);
     }
 
-    @RequestMapping(value = "/setSensorApplication/{id}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public void setSensorApplication(@PathVariable("id") int id) throws IllegalAccessException, InstantiationException, InvocationTargetException {
-        userService.setSensorApplication(id);
-    }
-
     @RequestMapping(value = "/update", method = RequestMethod.PATCH, produces = MediaType.APPLICATION_JSON_VALUE)
-    public User updateUser(@RequestBody User user) throws IllegalAccessException, InstantiationException, InvocationTargetException {
+    public User updateUser(@RequestBody User user) throws IllegalAccessException, InstantiationException, InvocationTargetException, IOException {
         return userService.updateUser(user);
     }
 
     @RequestMapping(value = "/doctors", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<User> getDoctors() throws IllegalAccessException, InvocationTargetException, InstantiationException {
+    public List<User> getDoctors() throws IllegalAccessException, InvocationTargetException, InstantiationException, IOException {
         return userService.getDoctors();
     }
 }

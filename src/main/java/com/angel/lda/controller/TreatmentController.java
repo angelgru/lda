@@ -39,13 +39,13 @@ public class TreatmentController {
 
     // Враќаме treatment за кој ги прикажуваме деталите за истиот кога некој доктор ќе го прифати treatment-от
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Treatment getTreatment(@PathVariable("id") int id) throws IllegalAccessException, InstantiationException, InvocationTargetException {
+    public Treatment getTreatment(@PathVariable("id") int id) throws IllegalAccessException, InstantiationException, InvocationTargetException, IOException {
         return treatmentService.getTreatment(id);
     }
 
 //    Враќаме treatment-и прифатени од доктор за кои сеуште нема поставено дијагноза
     @RequestMapping(value = "/accepted", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<Treatment> getAllTreatmentsAcceptedByCurrentlyLoggedInDoctor() throws IllegalAccessException, InstantiationException, InvocationTargetException {
+    public List<Treatment> getAllTreatmentsAcceptedByCurrentlyLoggedInDoctor() throws IllegalAccessException, InstantiationException, InvocationTargetException, IOException {
         List<Treatment> treatments = treatmentService.getAllTreatmentsAcceptedByCurrentlyLoggedInDoctor();
         if(treatments.isEmpty()){
             throw new ResourceNotFound("There are no treatments accepted by this user!");
@@ -55,25 +55,24 @@ public class TreatmentController {
 
 //    Treatments за кој е поставена дијагноза, од базата ги враќа само оние кои припаѓаат на моментално логираниот корисник
     @RequestMapping(value = "/completed", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<Treatment> getCompletedTreatmentsAcceptedByCurrentlyLoggedInDoctor() throws IllegalAccessException, InstantiationException, InvocationTargetException {
+    public List<Treatment> getCompletedTreatmentsAcceptedByCurrentlyLoggedInDoctor() throws IllegalAccessException, InstantiationException, InvocationTargetException, IOException {
         List<Treatment> treatments = treatmentService.getCompletedTreatmentsAcceptedByCurrentlyLoggedInDoctor();
         if(treatments.isEmpty()){
             throw new ResourceNotFound("There are no treatments completed by this doctor");
         }
-
         return treatments;
     }
 
 //    Пациентот бара нов treatment
     @RequestMapping(value = "/", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<Treatment> createTreatment(@RequestBody Treatment treatment) throws IllegalAccessException, InstantiationException, InvocationTargetException {
-        return treatmentService.createTreatment(treatment);
+    public void createTreatment(@RequestBody Treatment treatment) throws IllegalAccessException, InstantiationException, InvocationTargetException, IOException {
+        treatmentService.createTreatment(treatment);
     }
 
 //    Кога докторот ќе прифати treatment, го доделувам treatment-от на доктор-от или поставуваме дијагноза
 //    за treatment-от ако е проследена истата
     @RequestMapping(value = "/{treatmentId}", method = RequestMethod.PATCH, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Treatment updateTreatment(@RequestBody Treatment treatment, @PathVariable("treatmentId") int treatmentId, HttpServletRequest request) throws IllegalAccessException, InstantiationException, InvocationTargetException {
+    public List<Treatment> updateTreatment(@RequestBody Treatment treatment, @PathVariable("treatmentId") int treatmentId, HttpServletRequest request) throws IllegalAccessException, InstantiationException, InvocationTargetException, IOException {
         String ipAddress = request.getRemoteAddr();
         return treatmentService.updateTreatment(treatment, treatmentId, ipAddress);
     }
